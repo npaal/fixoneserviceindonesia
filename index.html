@@ -1,0 +1,2396 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>FIXONE Admin</title>
+  <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJGSVhPTkUiPgogIDxyZWN0IHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgcng9IjE0IiBmaWxsPSIjMjA1OUE2Ii8+CiAgPHRleHQgeD0iMjYiIHk9IjQ1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU3BhY2UgR3JvdGVzaywgQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSI3MDAiIGZvbnQtc2l6ZT0iMzgiIGZpbGw9IiNmZmZmZmYiPkY8L3RleHQ+CiAgPHJlY3QgeD0iMzgiIHk9IjEwIiB3aWR0aD0iNiIgaGVpZ2h0PSI0NCIgcng9IjIiIGZpbGw9IiNFNDQ3NDciIHRyYW5zZm9ybT0icm90YXRlKDI4IDQxIDMyKSIvPgo8L3N2Zz4K" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+:root {
+  --blue: #2059a6; --navy: #122844; --red: #e44747; --mist: #edf4fc; --white: #fff;
+  --ink: #122844; --muted: #55657a; --line: rgba(18,40,68,.14);
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --bar-h: 58px;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; font: 400 15px/1.5 var(--font-body); color: var(--ink); background: var(--mist); display: flex; flex-direction: column; }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--red); outline-offset: 2px; }
+
+/* top bar */
+.bar { height: var(--bar-h); flex: none; background: var(--white); border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; gap: 12px; }
+.bar-left, .bar-right { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.wm { font: 700 1.3rem var(--font-display); letter-spacing: -.02em; color: var(--blue); }
+.wm .x { position: relative; display: inline-block; }
+.wm .x::after { content: ""; position: absolute; left: 50%; top: -.08em; width: .13em; height: 1.12em; background: var(--red); border-radius: 2px; transform: translateX(-50%) rotate(28deg); }
+.badge { font: 600 .7rem var(--font-body); letter-spacing: .1em; text-transform: uppercase; background: var(--navy); color: var(--white); padding: 3px 8px; border-radius: 99px; }
+.status { font-size: .8rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.status.warn { color: #9a3b00; }
+.status.ok { color: #14663b; }
+
+.btn { border: 1.5px solid var(--line); background: var(--white); border-radius: 999px; padding: 8px 16px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.btn:hover { background: var(--mist); }
+.btn.primary { background: var(--blue); border-color: var(--blue); color: var(--white); }
+.btn.primary:hover { background: var(--navy); }
+.btn.danger { color: #a11d1d; border-color: rgba(161,29,29,.35); }
+.btn.sm { padding: 5px 12px; font-size: .85rem; }
+.btn.ghost { }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+
+.seg { display: inline-flex; border: 1.5px solid var(--line); border-radius: 999px; padding: 2px; background: var(--white); }
+.seg button { border: 0; background: transparent; padding: 5px 12px; border-radius: 999px; font-weight: 600; font-size: .85rem; color: var(--muted); cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--navy); color: var(--white); }
+
+/* layout */
+.layout { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(340px, 440px) 1fr; }
+.editor { overflow-y: auto; padding: 16px; background: var(--white); border-right: 1px solid var(--line); }
+.preview { overflow: auto; padding: 16px; display: flex; justify-content: center; align-items: flex-start; }
+.frame { width: 100%; height: 100%; background: var(--white); border-radius: 14px; overflow: hidden; box-shadow: 0 8px 30px rgba(18,40,68,.14); transition: width .2s ease; }
+.frame.mobile { width: 390px; max-width: 100%; }
+.frame iframe { width: 100%; height: 100%; border: 0; display: block; }
+.tabs-m { display: none; }
+
+/* accordion */
+details.sec { border: 1px solid var(--line); border-radius: 14px; margin-bottom: 10px; background: var(--white); }
+details.sec > summary { cursor: pointer; list-style: none; padding: 14px 16px; font: 700 1rem var(--font-display); display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+details.sec > summary::-webkit-details-marker { display: none; }
+details.sec > summary::after { content: "+"; font-weight: 500; font-size: 1.3rem; color: var(--blue); }
+details.sec[open] > summary::after { content: "–"; }
+details.sec > summary small { font: 500 .75rem var(--font-body); color: var(--muted); margin-left: auto; }
+.sec-body { padding: 0 16px 16px; display: grid; gap: 12px; }
+
+label { display: grid; gap: 5px; font-weight: 600; font-size: .85rem; }
+label small { font-weight: 400; color: var(--muted); }
+input[type="text"], input[type="url"], input[type="email"], input:not([type]), input[type="password"], select, textarea {
+  width: 100%; padding: 9px 12px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--white); font-weight: 400;
+}
+textarea { min-height: 76px; resize: vertical; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(32,89,166,.18); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.hint { color: var(--muted); font-size: .85rem; margin: 0; }
+.check { display: flex; align-items: center; gap: 8px; font-weight: 500; }
+
+/* item cards */
+.item { border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: grid; gap: 10px; background: #fbfdff; }
+.item-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.item-head b { font-size: .85rem; color: var(--muted); }
+.mini { display: flex; gap: 4px; }
+.mini button { border: 1px solid var(--line); background: var(--white); border-radius: 8px; width: 30px; height: 30px; cursor: pointer; font-weight: 700; }
+.mini button:hover { background: var(--mist); }
+.mini button.del { color: #a11d1d; }
+.mini button:disabled { opacity: .35; cursor: default; }
+.add { border: 1.5px dashed rgba(32,89,166,.45); background: transparent; color: var(--blue); border-radius: 12px; padding: 10px; font-weight: 600; cursor: pointer; }
+.add:hover { background: var(--mist); }
+
+/* image picker */
+.pick { display: grid; grid-template-columns: 84px 1fr; gap: 10px; align-items: center; }
+.thumb { width: 84px; height: 84px; border-radius: 10px; background: var(--mist); border: 1.5px dashed rgba(32,89,166,.35); overflow: hidden; display: grid; place-items: center; color: var(--blue); font-size: .7rem; text-align: center; }
+.thumb img, .thumb video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pick-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.pick-actions input[type="text"] { flex: 1 1 100%; font-size: .8rem; padding: 6px 10px; }
+
+.price-row { display: grid; grid-template-columns: 1fr 120px 30px; gap: 6px; align-items: center; }
+.price-row input { padding: 7px 10px; }
+
+/* dialogs */
+dialog { border: 0; border-radius: 18px; padding: 0; width: min(560px, 94vw); box-shadow: 0 30px 80px rgba(18,40,68,.35); }
+dialog::backdrop { background: rgba(18,40,68,.5); }
+.dlg { padding: 22px; display: grid; gap: 14px; }
+.dlg h2 { margin: 0; font: 700 1.3rem var(--font-display); }
+.dlg-foot { display: flex; justify-content: flex-end; gap: 8px; }
+.row-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.how { font-size: .85rem; color: var(--muted); }
+.how ol { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 4px; }
+.log { background: var(--navy); color: #d6e4f7; border-radius: 10px; padding: 12px; margin: 0; font: 12px/1.5 ui-monospace, Menlo, monospace; max-height: 190px; overflow: auto; white-space: pre-wrap; }
+
+.toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--navy); color: var(--white); padding: 10px 18px; border-radius: 999px; font-weight: 600; font-size: .9rem; z-index: 99; box-shadow: 0 10px 30px rgba(18,40,68,.35); }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .editor, .preview { display: none; border: 0; }
+  body[data-pane="edit"] .editor { display: block; }
+  body[data-pane="preview"] .preview { display: flex; }
+  .preview { height: 100%; }
+  .tabs-m { display: flex; gap: 6px; padding: 8px 12px; background: var(--white); border-bottom: 1px solid var(--line); }
+  .tabs-m button { flex: 1; border: 1.5px solid var(--line); background: var(--white); border-radius: 999px; padding: 7px; font-weight: 600; cursor: pointer; }
+  .tabs-m button[aria-pressed="true"] { background: var(--navy); color: var(--white); border-color: var(--navy); }
+  .seg, .status { display: none; }
+  .bar { padding: 0 12px; }
+  .grid2 { grid-template-columns: 1fr; }
+}
+
+.wm { white-space: nowrap; }
+@media (max-width: 900px) {
+  .badge { display: none; }
+  .bar-right { gap: 6px; }
+  .bar .btn { padding: 7px 12px; font-size: .85rem; }
+}
+
+/* dialog: tombol tutup + kode */
+.dlg-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.dlg-top .x { flex: none; width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--white); cursor: pointer; font-size: 1rem; line-height: 1; }
+.dlg-top .x:hover { background: var(--mist); }
+.dlg .code { font: 12px/1.5 ui-monospace, Menlo, monospace; background: var(--navy); color: #d6e4f7; border-radius: 10px; border: 0; min-height: 150px; }
+.dlg code { background: var(--mist); padding: 1px 6px; border-radius: 6px; font-size: .85em; }
+.btn .short { display: none; }
+@media (max-width: 900px) { .btn .long { display: none; } .btn .short { display: inline; } .dlg-foot { flex-wrap: wrap; } }
+
+/* feed: rasio, unggah banyak; reels */
+.pick { grid-template-columns: auto 1fr; }
+.ratio { display: grid; gap: 6px; }
+.ratio b { font-size: .85rem; }
+.ratio small { color: var(--muted); }
+.ratio .seg { justify-self: start; }
+.bulk { display: grid; gap: 8px; justify-items: start; }
+.bulk textarea { width: 100%; }
+.add:disabled { opacity: .55; cursor: not-allowed; border-style: solid; }
+.reel-row { display: grid; grid-template-columns: 64px 1fr; gap: 12px; align-items: start; }
+.reel-thumb { width: 64px; height: auto; aspect-ratio: 9 / 16; }
+.reel-fields { display: grid; gap: 8px; min-width: 0; }
+.yt-status { color: var(--muted); font-size: .78rem; }
+.yt-status.ok { color: #14663b; }
+.yt-status.warn { color: #9a3b00; }
+.yt-status.bad { color: #a11d1d; }
+
+</style>
+</head>
+<body>
+  <header class="bar">
+    <div class="bar-left">
+      <span class="wm">FI<span class="x">X</span>ONE</span>
+      <span class="badge">Admin</span>
+      <span class="status" id="status" aria-live="polite">Memuat…</span>
+    </div>
+    <div class="bar-right">
+      <div class="seg" role="group" aria-label="Ukuran pratinjau">
+        <button type="button" data-view="desktop" aria-pressed="true">Desktop</button>
+        <button type="button" data-view="mobile" aria-pressed="false">Mobile</button>
+      </div>
+      <button type="button" class="btn ghost" id="btn-history"><span class="long">Draf &amp; cadangan</span><span class="short">Draf</span></button>
+      <button type="button" class="btn" id="btn-gen"><span class="long">Generate HTML</span><span class="short">HTML</span></button>
+      <button type="button" class="btn primary" id="btn-publish">Publish</button>
+    </div>
+  </header>
+
+  <div class="tabs-m" role="tablist">
+    <button type="button" data-pane="edit" aria-pressed="true">Edit</button>
+    <button type="button" data-pane="preview" aria-pressed="false">Pratinjau</button>
+  </div>
+
+  <main class="layout">
+    <aside class="editor" id="editor" aria-label="Editor konten"></aside>
+    <section class="preview" id="preview-pane" aria-label="Pratinjau langsung">
+      <div class="frame" id="frame"><iframe id="preview" srcdoc="&lt;!doctype html&gt;
+&lt;html lang=&quot;id&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;utf-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+  &lt;title&gt;FIXONE | Servis iPhone, iPad, MacBook di Bali&lt;/title&gt;
+  &lt;meta name=&quot;description&quot; content=&quot;FIXONE, device care specialist di Bali. Servis independen iPhone, iPad, MacBook, dan Apple Watch dengan diagnosa jelas, estimasi sebelum dikerjakan, dan kartu serah terima tertulis.&quot;&gt;
+  &lt;meta name=&quot;theme-color&quot; content=&quot;#2059A6&quot;&gt;
+  &lt;meta property=&quot;og:type&quot; content=&quot;website&quot;&gt;
+  &lt;meta property=&quot;og:title&quot; content=&quot;FIXONE | Your device, restored.&quot;&gt;
+  &lt;meta property=&quot;og:description&quot; content=&quot;Servis independen iPhone, iPad, MacBook, dan Apple Watch di Bali. Dicek dulu, dijelaskan jelas, dikerjakan setelah kamu setuju.&quot;&gt;
+  &lt;link rel=&quot;icon&quot; href=&quot;data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJGSVhPTkUiPgogIDxyZWN0IHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgcng9IjE0IiBmaWxsPSIjMjA1OUE2Ii8+CiAgPHRleHQgeD0iMjYiIHk9IjQ1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iU3BhY2UgR3JvdGVzaywgQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSI3MDAiIGZvbnQtc2l6ZT0iMzgiIGZpbGw9IiNmZmZmZmYiPkY8L3RleHQ+CiAgPHJlY3QgeD0iMzgiIHk9IjEwIiB3aWR0aD0iNiIgaGVpZ2h0PSI0NCIgcng9IjIiIGZpbGw9IiNFNDQ3NDciIHRyYW5zZm9ybT0icm90YXRlKDI4IDQxIDMyKSIvPgo8L3N2Zz4K&quot; type=&quot;image/svg+xml&quot;&gt;
+
+  &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.googleapis.com&quot;&gt;
+  &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.gstatic.com&quot; crossorigin&gt;
+  &lt;link href=&quot;https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;700&amp;display=swap&quot; rel=&quot;stylesheet&quot;&gt;
+  &lt;style&gt;
+/* FIXONE — Device Care Specialist, Bali
+   Token warna dan font diambil dari brand identity (konsep FIXONE). */
+
+:root {
+  --blue: #2059a6;
+  --navy: #122844;
+  --white: #ffffff;
+  --red: #e44747;
+  --mist: #edf4fc;
+  --ink: #122844;
+  --muted: #55657a;
+  --line: rgba(18, 40, 68, 0.12);
+
+  --font-display: &quot;Space Grotesk&quot;, system-ui, sans-serif;
+  --font-body: &quot;Inter&quot;, system-ui, sans-serif;
+
+  --s1: 0.5rem;
+  --s2: 1rem;
+  --s3: 1.5rem;
+  --s4: 2.5rem;
+  --s5: 4rem;
+  --s6: 6rem;
+  --radius: 18px;
+  --max: 1120px;
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--white);
+  -webkit-font-smoothing: antialiased;
+}
+
+[hidden] { display: none !important; }
+img, svg { max-width: 100%; display: block; }
+a { color: inherit; }
+
+.wrap {
+  width: 100%;
+  max-width: var(--max);
+  margin-inline: auto;
+  padding-inline: 16px;
+}
+
+.skip {
+  position: absolute; left: -999px; top: 8px;
+  background: var(--white); color: var(--navy);
+  padding: 8px 14px; border-radius: 8px; z-index: 100;
+}
+.skip:focus { left: 8px; }
+
+/* ---------- Wordmark ---------- */
+.wm {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  text-decoration: none;
+  display: inline-block;
+}
+.wm .x { position: relative; display: inline-block; }
+.wm .x::after {
+  content: &quot;&quot;;
+  position: absolute;
+  left: 50%;
+  top: -0.08em;
+  width: 0.13em;
+  height: 1.12em;
+  background: var(--red);
+  border-radius: 2px;
+  transform: translateX(-50%) rotate(28deg);
+}
+
+/* ---------- Header ---------- */
+.site-header {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+.site-header .wrap {
+  display: flex; align-items: center; justify-content: space-between;
+  height: 64px; gap: var(--s2);
+}
+.site-header .wm { font-size: 1.5rem; color: var(--blue); }
+
+.nav { display: none; gap: var(--s3); }
+.nav a {
+  text-decoration: none; font-weight: 500; font-size: 0.95rem; color: var(--navy);
+}
+.nav a:hover { color: var(--blue); }
+
+.header-actions { display: flex; align-items: center; gap: 10px; }
+
+.lang {
+  display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 2px;
+}
+.lang button {
+  font: 600 0.75rem var(--font-body);
+  border: 0; background: transparent; color: var(--muted);
+  padding: 5px 10px; border-radius: 999px; cursor: pointer;
+}
+.lang button[aria-pressed=&quot;true&quot;] { background: var(--navy); color: var(--white); }
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  font: 600 1rem var(--font-body);
+  text-decoration: none;
+  padding: 13px 22px;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.btn:active { transform: translateY(1px); }
+.btn-light { background: var(--white); color: var(--navy); }
+.btn-light:hover { background: var(--mist); }
+.btn-ghost { border-color: rgba(255, 255, 255, 0.55); color: var(--white); }
+.btn-ghost:hover { background: rgba(255, 255, 255, 0.1); }
+.btn-blue { background: var(--blue); color: var(--white); }
+.btn-blue:hover { background: var(--navy); }
+.btn-sm { padding: 8px 16px; font-size: 0.9rem; }
+.btn .dot {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--red);
+}
+
+:focus-visible { outline: 3px solid var(--red); outline-offset: 3px; }
+
+/* ---------- Hero ---------- */
+.hero {
+  background: var(--blue);
+  color: var(--white);
+  position: relative;
+  overflow: hidden;
+  padding-block: var(--s5) var(--s5);
+}
+.hero::before {
+  /* goresan merah berskala besar sebagai ciri khas, sangat halus */
+  content: &quot;&quot;;
+  position: absolute;
+  right: 12%; top: -20%;
+  width: 14px; height: 140%;
+  background: var(--red);
+  opacity: 0.9;
+  transform: rotate(28deg);
+  border-radius: 4px;
+}
+.hero .wrap { position: relative; display: grid; gap: var(--s4); }
+
+.eyebrow {
+  font: 600 0.78rem var(--font-body);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.78);
+  margin: 0 0 var(--s2);
+}
+.hero h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2.4rem, 8vw + 0.5rem, 4.6rem);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  margin: 0 0 var(--s3);
+  max-width: 14ch;
+}
+.hero .lead {
+  font-size: 1.1rem;
+  max-width: 46ch;
+  color: rgba(255, 255, 255, 0.92);
+  margin: 0 0 var(--s3);
+}
+.hero-cta { display: flex; flex-wrap: wrap; gap: 12px; }
+.promise {
+  margin: var(--s3) 0 0;
+  font: 600 0.85rem var(--font-display);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* kartu perangkat di hero */
+.device {
+  width: min(100%, 300px);
+  background: var(--navy);
+  border-radius: 34px;
+  padding: 12px;
+  box-shadow: 0 30px 60px rgba(8, 20, 38, 0.45);
+  position: relative;
+}
+.device-screen {
+  background: var(--mist);
+  color: var(--navy);
+  border-radius: 24px;
+  padding: 22px 18px 18px;
+}
+.device-notch {
+  width: 84px; height: 22px; border-radius: 99px; background: var(--navy);
+  margin: -8px auto 14px;
+}
+.device-title { font: 700 1.15rem var(--font-display); margin: 0 0 2px; }
+.device-sub { font-size: 0.82rem; color: var(--muted); margin: 0 0 14px; }
+.check {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--white); border-radius: 12px; padding: 10px 12px;
+  font-size: 0.88rem; font-weight: 500; margin-bottom: 8px;
+}
+.check i {
+  flex: none; width: 20px; height: 20px; border-radius: 50%;
+  background: var(--blue); color: var(--white);
+  display: grid; place-items: center; font-style: normal; font-size: 0.7rem; font-weight: 700;
+}
+.check.now i { background: var(--white); border: 2px solid var(--red); color: var(--red); }
+.check small { display: block; color: var(--muted); font-weight: 400; font-size: 0.75rem; }
+
+/* ---------- Sections ---------- */
+section { padding-block: var(--s5); }
+.sec-head { max-width: 640px; margin-bottom: var(--s4); }
+.kicker {
+  font: 600 0.78rem var(--font-body);
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--blue);
+  margin: 0 0 10px;
+  display: flex; align-items: center; gap: 10px;
+}
+.kicker::before,
+.step .word::before {
+  content: &quot;&quot;;
+  flex: none;
+  width: 4px; height: 16px;
+  background: var(--red);
+  border-radius: 2px;
+  transform: rotate(28deg);
+}
+.handover .kicker { color: rgba(255, 255, 255, 0.85); }
+h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw + 0.6rem, 2.8rem);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  margin: 0 0 var(--s2);
+  color: var(--navy);
+}
+.sec-head p { color: var(--muted); margin: 0; font-size: 1.05rem; }
+
+/* ---------- Layanan ---------- */
+.services { background: var(--white); }
+.grid {
+  display: grid; gap: var(--s2);
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+.card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--s3);
+}
+.card h3 {
+  font: 700 1.25rem var(--font-display);
+  margin: 0 0 4px; color: var(--blue);
+}
+.card .for { color: var(--muted); font-size: 0.9rem; margin: 0 0 var(--s2); }
+.card ul { list-style: none; margin: 0; padding: 0; }
+.card li {
+  padding: 8px 0 8px 22px; position: relative;
+  border-top: 1px solid var(--line); font-size: 0.95rem;
+}
+.card li::before {
+  content: &quot;&quot;; position: absolute; left: 2px; top: 1.05em;
+  width: 8px; height: 2px; background: var(--blue); transform: rotate(28deg);
+}
+
+.callout {
+  margin-top: var(--s2);
+  background: var(--mist);
+  border-radius: var(--radius);
+  padding: var(--s3);
+  display: grid; gap: var(--s2); align-items: center;
+}
+.callout p { margin: 0; }
+.callout strong { font-family: var(--font-display); font-size: 1.15rem; }
+
+/* ---------- Cara kerja ---------- */
+.process { background: var(--mist); }
+.steps { display: grid; gap: var(--s2); counter-reset: step; }
+.step {
+  background: var(--white); border-radius: var(--radius); padding: var(--s3);
+  position: relative;
+}
+.step .word {
+  font: 700 0.8rem var(--font-display);
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--blue);
+  display: flex; align-items: center; gap: 10px;
+}
+.step h3 { font: 700 1.3rem var(--font-display); margin: 6px 0 8px; color: var(--navy); }
+.step p { margin: 0; color: var(--muted); }
+
+/* ---------- Kenapa ---------- */
+.why-grid { display: grid; gap: var(--s3); }
+.why-item { border-top: 3px solid var(--blue); padding-top: var(--s2); }
+.why-item h3 { font: 700 1.15rem var(--font-display); margin: 0 0 6px; color: var(--navy); }
+.why-item p { margin: 0; color: var(--muted); }
+
+/* ---------- Kartu serah terima ---------- */
+.handover { background: var(--navy); color: var(--white); }
+.handover h2 { color: var(--white); }
+.handover .sec-head p { color: rgba(255, 255, 255, 0.78); }
+.handover .wrap { display: grid; gap: var(--s4); align-items: center; }
+.hcard {
+  background: var(--white); color: var(--navy);
+  border-radius: var(--radius); padding: var(--s3);
+  max-width: 420px; width: 100%;
+}
+.hcard-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--s2); }
+.hcard-top .wm { font-size: 1.3rem; color: var(--blue); }
+.tag {
+  font: 600 0.72rem var(--font-body); letter-spacing: 0.08em; text-transform: uppercase;
+  background: var(--mist); color: var(--blue); padding: 4px 10px; border-radius: 99px;
+}
+.hrow { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 0.93rem; }
+.hrow span:first-child { color: var(--muted); }
+.hrow span:last-child { font-weight: 600; text-align: right; }
+.hcard .fine { font-size: 0.75rem; color: var(--muted); margin: var(--s2) 0 0; }
+
+/* ---------- Booking ---------- */
+.booking .wrap { display: grid; gap: var(--s4); }
+form { display: grid; gap: var(--s2); }
+label { font-weight: 600; font-size: 0.9rem; display: grid; gap: 6px; }
+input, select, textarea {
+  font: 1rem var(--font-body);
+  color: var(--navy);
+  padding: 12px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  background: var(--white);
+  width: 100%;
+}
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(32, 89, 166, 0.2); }
+textarea { min-height: 110px; resize: vertical; }
+.form-note { font-size: 0.85rem; color: var(--muted); margin: 0; }
+
+.contact-list { list-style: none; margin: var(--s3) 0 0; padding: 0; display: grid; gap: 12px; }
+.contact-list li { display: grid; gap: 2px; }
+.contact-list b { font: 600 0.75rem var(--font-body); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.contact-list a { color: var(--blue); font-weight: 600; }
+
+/* ---------- Footer ---------- */
+.site-footer { background: var(--navy); color: rgba(255, 255, 255, 0.8); padding-block: var(--s4); font-size: 0.9rem; }
+.site-footer .wrap { display: grid; gap: var(--s2); }
+.site-footer .wm { font-size: 1.6rem; color: var(--white); }
+.site-footer p { margin: 0; max-width: 62ch; }
+.site-footer .legal { font-size: 0.8rem; color: rgba(255, 255, 255, 0.6); }
+
+/* ---------- Tombol WhatsApp melayang ---------- */
+.wa-float {
+  position: fixed; right: 16px; bottom: 16px; z-index: 60;
+  background: var(--navy); color: var(--white);
+  text-decoration: none; font-weight: 600; font-size: 0.95rem;
+  padding: 12px 18px; border-radius: 999px;
+  box-shadow: 0 10px 28px rgba(18, 40, 68, 0.35);
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.wa-float .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--red); }
+
+/* ---------- Reveal ---------- */
+.js .reveal { opacity: 0; transform: translateY(14px); transition: opacity 0.5s ease, transform 0.5s ease; }
+.js .reveal.in { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .js .reveal { opacity: 1; transform: none; transition: none; }
+  .btn { transition: none; }
+}
+
+/* ---------- Tablet / desktop ---------- */
+@media (min-width: 760px) {
+  .wrap { padding-inline: 24px; }
+  section { padding-block: var(--s6); }
+  .hero { padding-block: var(--s6); }
+  .hero .wrap { grid-template-columns: 1.15fr 0.85fr; align-items: center; }
+  .steps { grid-template-columns: repeat(3, 1fr); }
+  .why-grid { grid-template-columns: repeat(2, 1fr); gap: var(--s4); }
+  .callout { grid-template-columns: 1fr auto; padding: var(--s4); }
+  .handover .wrap { grid-template-columns: 1fr 1fr; }
+  .booking .wrap { grid-template-columns: 1.1fr 0.9fr; gap: var(--s5); }
+  .site-footer .wrap { grid-template-columns: 1fr auto; align-items: end; }
+}
+
+
+/* ================= v2: kerangka referensi ================= */
+
+/* Topbar kontak */
+.topbar { background: var(--navy); color: rgba(255,255,255,.85); font-size: .8rem; }
+.topbar .wrap { display: flex; flex-wrap: wrap; gap: 4px 18px; padding-block: 8px; justify-content: space-between; }
+.topbar span:empty, .topbar a:empty { display: none; }
+.topbar a { text-decoration: none; font-weight: 600; color: var(--white); }
+
+/* Hero media: foto + kartu status */
+.hero-media { position: relative; justify-self: center; width: min(100%, 420px); }
+.hero-media .device { position: relative; margin: -56px 0 0 auto; width: 78%; }
+
+/* Bingkai foto: placeholder bila belum ada foto asli */
+.photo { margin: 0; border-radius: var(--radius); overflow: hidden; background: var(--mist); position: relative; aspect-ratio: 4 / 5; }
+.photo img { width: 100%; height: 100%; object-fit: cover; }
+.photo.ph {
+  display: grid; place-items: center; text-align: center; padding: var(--s3);
+  border: 2px dashed rgba(32,89,166,.35); color: var(--blue);
+  font: 600 .9rem var(--font-body);
+}
+.hero .photo.ph { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.5); color: var(--white); }
+.photo.ph span { max-width: 22ch; }
+.photo.ph small { display: block; margin-top: 6px; font-weight: 400; opacity: .8; }
+.photo-wide { aspect-ratio: 16 / 10; margin-bottom: var(--s3); }
+.photo-tall { aspect-ratio: 4 / 5; }
+
+/* Strip kredibilitas */
+.strip { background: var(--mist); padding-block: var(--s3); }
+.strip .wrap { display: grid; gap: var(--s2); }
+.strip-item { display: flex; align-items: baseline; gap: 12px; }
+.strip-item b { font: 700 1.5rem var(--font-display); color: var(--blue); letter-spacing: -.02em; }
+.strip-item span { color: var(--muted); font-size: .95rem; }
+.strip-item.promise-item { align-items: center; }
+.strip-item.promise-item::before { content: &quot;&quot;; flex: none; width: 4px; height: 20px; background: var(--red); border-radius: 2px; transform: rotate(28deg); }
+.strip-item.promise-item span { color: var(--navy); font-weight: 600; }
+
+/* Kartu layanan dengan ikon */
+.grid-5 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.card .ico { width: 34px; height: 34px; color: var(--blue); margin-bottom: var(--s2); }
+.card h3 { margin-bottom: var(--s2); }
+
+/* Tag gejala */
+.symptoms { margin-top: var(--s4); }
+.symptoms-label { color: var(--muted); font-size: .95rem; margin: 0 0 var(--s2); }
+.tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.tags button {
+  font: 500 .9rem var(--font-body); color: var(--navy);
+  background: var(--white); border: 1.5px solid var(--line); border-radius: 999px;
+  padding: 8px 14px; cursor: pointer; transition: border-color .15s, background .15s;
+}
+.tags button:hover { border-color: var(--blue); background: var(--mist); }
+
+/* Langkah (4) */
+.steps-4 .num { font: 700 2rem var(--font-display); color: var(--blue); letter-spacing: -.03em; display: block; line-height: 1; }
+.step .num + h3 { margin-top: 12px; }
+
+/* Daftar harga */
+.pricing { background: var(--white); }
+.price-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: var(--s3); }
+.price-tabs button {
+  font: 600 .95rem var(--font-body); padding: 10px 18px; border-radius: 999px;
+  border: 1.5px solid var(--line); background: var(--white); color: var(--navy); cursor: pointer;
+}
+.price-tabs button[aria-selected=&quot;true&quot;] { background: var(--blue); border-color: var(--blue); color: var(--white); }
+.price-table { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.price-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 14px var(--s3); border-top: 1px solid var(--line); text-decoration: none;
+}
+.price-row:first-child { border-top: 0; }
+.price-row:hover { background: var(--mist); }
+.price-row .nm { font-weight: 500; }
+.price-row .pr { font: 700 1rem var(--font-display); color: var(--blue); white-space: nowrap; }
+.price-row .pr.ask { color: var(--muted); font-weight: 600; font-family: var(--font-body); font-size: .9rem; }
+.price-note { color: var(--muted); font-size: .85rem; margin: var(--s2) 0 0; }
+
+/* Testimoni */
+.testi { background: var(--mist); }
+.quote { background: var(--white); border-radius: var(--radius); padding: var(--s3); margin: 0; }
+.quote p { margin: 0 0 var(--s2); }
+.quote footer { display: flex; align-items: center; gap: 12px; font-size: .9rem; }
+.quote img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
+.quote b { display: block; }
+.quote span { color: var(--muted); }
+
+/* Kenapa FIXONE: foto di samping */
+.why { display: grid; gap: var(--s4); align-items: center; }
+
+.btn-outline { border-color: var(--blue); color: var(--blue); margin-top: var(--s3); }
+.btn-outline:hover { background: var(--mist); }
+
+@media (min-width: 760px) {
+  .strip .wrap { grid-template-columns: repeat(3, 1fr); }
+  .steps-4 { grid-template-columns: repeat(2, 1fr); }
+  .hero-media .device { position: absolute; right: -28px; bottom: -28px; margin: 0; width: 64%; }
+  .why { grid-template-columns: 0.8fr 1.2fr; gap: var(--s5); }
+  .why-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (min-width: 1000px) {
+  .steps-4 { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* perbaikan v2 */
+.hero .photo.ph { align-content: start; padding-top: var(--s4); }
+.price-note { padding: 0 var(--s3) var(--s2); margin: 0; }
+.price-table .price-note { padding-top: var(--s2); border-top: 1px solid var(--line); }
+@media (max-width: 759px) {
+  .hero-media .device { width: 92%; }
+}
+
+@media (max-width: 759px) {
+  .hero::before { right: 4%; top: 62%; height: 38%; }
+}
+
+/* ================= feed, video, tombol WhatsApp ================= */
+.feed-grid { display: grid; gap: 8px; grid-template-columns: repeat(2, 1fr); }
+.feed-item { position: relative; display: block; aspect-ratio: 1 / 1; border-radius: 14px; overflow: hidden; background: var(--mist); margin: 0; text-decoration: none; }
+.feed-item img { width: 100%; height: 100%; object-fit: cover; transition: transform .3s ease; }
+a.feed-item:hover img { transform: scale(1.04); }
+.feed-item span { position: absolute; inset: auto 0 0 0; padding: 28px 12px 10px; color: var(--white); font-size: .85rem; line-height: 1.35; background: linear-gradient(transparent, rgba(18,40,68,.82)); }
+
+.videos { background: var(--mist); }
+.video-grid { display: grid; gap: var(--s3); grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.video-card { background: var(--white); border-radius: var(--radius); overflow: hidden; }
+.video-frame { aspect-ratio: 16 / 9; background: var(--navy); }
+.video-frame iframe, .video-frame video { width: 100%; height: 100%; border: 0; display: block; }
+.video-title { margin: 0; padding: 14px var(--s2); font-weight: 600; }
+.video-link { display: block; padding: var(--s3) var(--s2) 0; font-weight: 600; color: var(--blue); }
+
+.wa-float { gap: 10px; }
+.wa-float::before {
+  content: &quot;&quot;; position: absolute; inset: 0; border-radius: inherit;
+  border: 2px solid var(--navy); animation: wa-pulse 2.4s ease-out infinite; pointer-events: none;
+}
+@keyframes wa-pulse { 0% { transform: scale(1); opacity: .55; } 100% { transform: scale(1.35, 1.7); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .wa-float::before { animation: none; display: none; } }
+
+@media (min-width: 760px) {
+  .feed-grid { grid-template-columns: repeat(4, 1fr); gap: 12px; }
+}
+
+/* header: menu tampil mulai 960px agar wordmark dan tombol tidak berdesakan */
+.wm, .btn-sm, .nav a { white-space: nowrap; }
+@media (min-width: 960px) { .nav { display: flex; } }
+
+/* ================= feed berformat 4:5 / 16:9 + reels vertikal ================= */
+.feed-grid.r45 .feed-item { aspect-ratio: 4 / 5; }
+.feed-grid.r169 { grid-template-columns: 1fr; }
+.feed-grid.r169 .feed-item { aspect-ratio: 16 / 9; }
+@media (min-width: 560px) { .feed-grid.r169 { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 960px) { .feed-grid.r169 { grid-template-columns: repeat(3, 1fr); } }
+
+.video-grid.reels {
+  display: flex; gap: 12px; overflow-x: auto; padding: 4px 2px 14px;
+  scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; scrollbar-width: thin;
+}
+.reel { flex: 0 0 min(64vw, 230px); scroll-snap-align: start; }
+.video-grid.reels .video-card { flex: 0 0 min(80vw, 300px); scroll-snap-align: start; align-self: flex-start; }
+.reel-frame { position: relative; aspect-ratio: 9 / 16; border-radius: 16px; overflow: hidden; background: var(--navy); }
+.reel-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.reel-play { all: unset; cursor: pointer; position: absolute; inset: 0; display: block; }
+.reel-play:focus-visible { outline: 3px solid var(--red); outline-offset: -3px; border-radius: 16px; }
+.reel-play img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.reel-icon { position: absolute; left: 50%; top: 50%; width: 58px; height: 58px; margin: -29px 0 0 -29px; border-radius: 50%; background: rgba(18, 40, 68, .85); }
+.reel-icon::after { content: &quot;&quot;; position: absolute; left: 23px; top: 18px; border-left: 17px solid #fff; border-top: 11px solid transparent; border-bottom: 11px solid transparent; }
+.reel .video-title { padding: 8px 2px 0; font-size: .9rem; }
+
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;script&gt;document.documentElement.classList.add(&quot;js&quot;);&lt;/script&gt;
+  &lt;a class=&quot;skip&quot; href=&quot;#main&quot; data-i18n=&quot;skip&quot;&gt;Langsung ke konten&lt;/a&gt;
+
+  &lt;!-- Topbar kontak --&gt;
+  &lt;div class=&quot;topbar&quot;&gt;
+    &lt;div class=&quot;wrap&quot;&gt;
+      &lt;span data-contact-bar=&quot;address&quot;&gt;&lt;/span&gt;
+      &lt;span data-contact-bar=&quot;hours&quot;&gt;&lt;/span&gt;
+      &lt;a data-contact-bar=&quot;whatsapp&quot; data-wa href=&quot;#booking&quot;&gt;&lt;/a&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;header class=&quot;site-header&quot;&gt;
+    &lt;div class=&quot;wrap&quot;&gt;
+      &lt;a class=&quot;wm&quot; href=&quot;#top&quot; aria-label=&quot;FIXONE, ke atas halaman&quot;&gt;FI&lt;span class=&quot;x&quot;&gt;X&lt;/span&gt;ONE&lt;/a&gt;
+      &lt;nav class=&quot;nav&quot; aria-label=&quot;Menu utama&quot;&gt;
+        &lt;a href=&quot;#layanan&quot; data-i18n=&quot;nav_services&quot;&gt;Layanan&lt;/a&gt;
+        &lt;a href=&quot;#cara-kerja&quot; data-i18n=&quot;nav_process&quot;&gt;Cara kerja&lt;/a&gt;
+        &lt;a href=&quot;#harga&quot; data-i18n=&quot;nav_price&quot;&gt;Daftar harga&lt;/a&gt;
+        &lt;a href=&quot;#kenapa&quot; data-i18n=&quot;nav_why&quot;&gt;Kenapa FIXONE&lt;/a&gt;
+        &lt;a href=&quot;#booking&quot; data-i18n=&quot;nav_contact&quot;&gt;Kontak&lt;/a&gt;
+      &lt;/nav&gt;
+      &lt;div class=&quot;header-actions&quot;&gt;
+        &lt;div class=&quot;lang&quot; role=&quot;group&quot; aria-label=&quot;Bahasa / Language&quot;&gt;
+          &lt;button type=&quot;button&quot; data-lang=&quot;id&quot; aria-pressed=&quot;true&quot;&gt;ID&lt;/button&gt;
+          &lt;button type=&quot;button&quot; data-lang=&quot;en&quot; aria-pressed=&quot;false&quot;&gt;EN&lt;/button&gt;
+        &lt;/div&gt;
+        &lt;a class=&quot;btn btn-blue btn-sm&quot; href=&quot;#booking&quot; data-i18n=&quot;nav_start&quot;&gt;Mulai perbaikan&lt;/a&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/header&gt;
+
+  &lt;main id=&quot;main&quot;&gt;
+    &lt;!-- HERO --&gt;
+    &lt;section class=&quot;hero&quot; id=&quot;top&quot;&gt;
+      &lt;div class=&quot;wrap&quot;&gt;
+        &lt;div&gt;
+          &lt;p class=&quot;eyebrow&quot; data-i18n=&quot;hero_eyebrow&quot;&gt;Servis perangkat Apple · Bali&lt;/p&gt;
+          &lt;h1&gt;Your device, restored.&lt;/h1&gt;
+          &lt;p class=&quot;lead&quot; data-i18n=&quot;hero_lead&quot;&gt;Servis independen untuk iPhone, iPad, MacBook, dan Apple Watch. Dicek dulu, dijelaskan dengan jelas, baru dikerjakan setelah kamu setuju.&lt;/p&gt;
+          &lt;div class=&quot;hero-cta&quot;&gt;
+            &lt;a class=&quot;btn btn-light&quot; href=&quot;#booking&quot;&gt;&lt;span data-i18n=&quot;cta_start&quot;&gt;Mulai perbaikan&lt;/span&gt; &lt;span class=&quot;dot&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;/a&gt;
+            &lt;a class=&quot;btn btn-ghost&quot; data-wa href=&quot;#booking&quot; data-i18n=&quot;cta_contact&quot;&gt;Hubungi kami&lt;/a&gt;
+          &lt;/div&gt;
+          &lt;p class=&quot;promise&quot;&gt;Repair. Restore. Reconnect.&lt;/p&gt;
+        &lt;/div&gt;
+
+        &lt;div class=&quot;hero-media reveal&quot;&gt;
+          &lt;figure class=&quot;photo&quot; data-photo=&quot;hero&quot; data-label=&quot;Foto teknisi / bengkel FIXONE&quot; data-label-en=&quot;FIXONE technician / workshop photo&quot;&gt;&lt;/figure&gt;
+          &lt;div class=&quot;device&quot; aria-label=&quot;Contoh tampilan status perbaikan&quot;&gt;
+            &lt;div class=&quot;device-screen&quot;&gt;
+              &lt;p class=&quot;device-title&quot; data-i18n=&quot;dev_title&quot;&gt;Status perbaikan&lt;/p&gt;
+              &lt;p class=&quot;device-sub&quot; data-i18n=&quot;dev_sub&quot;&gt;Contoh kartu serah terima&lt;/p&gt;
+              &lt;div class=&quot;check&quot;&gt;&lt;i aria-hidden=&quot;true&quot;&gt;✓&lt;/i&gt;&lt;span&gt;&lt;span data-i18n=&quot;dev_1&quot;&gt;Perangkat dicek&lt;/span&gt;&lt;small data-i18n=&quot;dev_1s&quot;&gt;Diagnosa selesai&lt;/small&gt;&lt;/span&gt;&lt;/div&gt;
+              &lt;div class=&quot;check&quot;&gt;&lt;i aria-hidden=&quot;true&quot;&gt;✓&lt;/i&gt;&lt;span&gt;&lt;span data-i18n=&quot;dev_2&quot;&gt;Estimasi disetujui&lt;/span&gt;&lt;small data-i18n=&quot;dev_2s&quot;&gt;Sebelum pengerjaan&lt;/small&gt;&lt;/span&gt;&lt;/div&gt;
+              &lt;div class=&quot;check now&quot;&gt;&lt;i aria-hidden=&quot;true&quot;&gt;●&lt;/i&gt;&lt;span&gt;&lt;span data-i18n=&quot;dev_3&quot;&gt;Sedang dikerjakan&lt;/span&gt;&lt;small data-i18n=&quot;dev_3s&quot;&gt;Kabar lewat WhatsApp&lt;/small&gt;&lt;/span&gt;&lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+
+    &lt;!-- STRIP KREDIBILITAS --&gt;
+    &lt;section class=&quot;strip&quot; aria-label=&quot;Ringkasan layanan&quot;&gt;
+      &lt;div class=&quot;wrap&quot; id=&quot;strip-items&quot;&gt;&lt;/div&gt;
+    &lt;/section&gt;
+
+    &lt;!-- LAYANAN --&gt;
+    &lt;section class=&quot;services&quot; id=&quot;layanan&quot;&gt;
+      &lt;div class=&quot;wrap&quot;&gt;
+        &lt;div class=&quot;sec-head reveal&quot;&gt;
+          &lt;p class=&quot;kicker&quot; data-i18n=&quot;svc_kicker&quot;&gt;Layanan&lt;/p&gt;
+          &lt;h2 data-i18n=&quot;svc_title&quot;&gt;Apa yang bisa kami kerjakan&lt;/h2&gt;
+          &lt;p data-i18n=&quot;svc_lead&quot;&gt;Pilih perangkatmu. Kalau gejalanya tidak ada di daftar, ceritakan saja.&lt;/p&gt;
+        &lt;/div&gt;
+
+        &lt;div class=&quot;grid grid-5&quot;&gt;
+          &lt;article class=&quot;card reveal&quot;&gt;
+            &lt;svg class=&quot;ico&quot; viewBox=&quot;0 0 32 32&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; aria-hidden=&quot;true&quot;&gt;&lt;rect x=&quot;9&quot; y=&quot;3&quot; width=&quot;14&quot; height=&quot;26&quot; rx=&quot;3.5&quot;/&gt;&lt;path d=&quot;M14 25h4&quot;/&gt;&lt;/svg&gt;
+            &lt;h3&gt;iPhone&lt;/h3&gt;
+            &lt;ul&gt;
+              &lt;li data-i18n=&quot;svc_iphone_1&quot;&gt;Layar pecah atau tidak responsif&lt;/li&gt;
+              &lt;li data-i18n=&quot;svc_iphone_2&quot;&gt;Baterai cepat habis&lt;/li&gt;
+              &lt;li data-i18n=&quot;svc_iphone_3&quot;&gt;Port charging dan kamera&lt;/li&gt;
+              &lt;li data-i18n=&quot;svc_iphone_4&quot;&gt;Terkena air atau cairan&lt;/li&gt;
+            &lt;/ul&gt;
+          &lt;/article&gt;
+          &lt;article class=&quot;card reveal&quot;&gt;
+            &lt;svg class=&quot;ico&quot; viewBox=&quot;0 0 32 32&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; aria-hidden=&quot;true&quot;&gt;&lt;rect x=&quot;6&quot; y=&quot;6&quot; width=&quot;20&quot; height=&quot;14&quot; rx=&quot;2&quot;/&gt;&lt;path d=&quot;M3 24h26&quot;/&gt;&lt;/svg&gt;
+            &lt;h3&gt;MacBook&lt;/h3&gt;
+            &lt;ul&gt;
+              &lt;li data-i18n=&quot;svc_mac_1&quot;&gt;Layar retak atau bergaris&lt;/li&gt;
+              &lt;li data-i18n=&quot;svc_mac_2&quot;&gt;Keyboard dan trackpad&lt;/li&gt;
+              &lt;li data-i18n=&quot;svc_mac_3&quot;&gt;Baterai menggembung&lt;/li&gt;
+              &lt;li data-i18n=&quot;svc_mac_4&quot;&gt;Mati total atau terkena cairan&lt;/li&gt;
+            &lt;/ul&gt;
+          &lt;/article&gt;
+          &lt;article class=&quot;card reveal&quot;&gt;
+            &lt;svg class=&quot;ico&quot; viewBox=&quot;0 0 32 32&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; aria-hidden=&quot;true&quot;&gt;&lt;rect x=&quot;6&quot; y=&quot;4&quot; width=&quot;20&quot; height=&quot;24&quot; rx=&quot;3&quot;/&gt;&lt;path d=&quot;M14.5 24h3&quot;/&gt;&lt;/svg&gt;
+            &lt;h3&gt;iPad&lt;/h3&gt;
+            &lt;ul&gt;
+              &lt;li data-i18n=&quot;svc_ipad_1&quot;&gt;Layar dan sentuhan bermasalah&lt;/li&gt;
+              &lt;li data-i18n=&quot;svc_ipad_2&quot;&gt;Baterai tidak tahan lama&lt;/li&gt;
+              &lt;li data-i18n=&quot;svc_ipad_3&quot;&gt;Port charging&lt;/li&gt;
+              &lt;li data-i18n=&quot;svc_ipad_4&quot;&gt;Tidak mau menyala&lt;/li&gt;
+            &lt;/ul&gt;
+          &lt;/article&gt;
+          &lt;article class=&quot;card reveal&quot;&gt;
+            &lt;svg class=&quot;ico&quot; viewBox=&quot;0 0 32 32&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; aria-hidden=&quot;true&quot;&gt;&lt;rect x=&quot;9&quot; y=&quot;9&quot; width=&quot;14&quot; height=&quot;14&quot; rx=&quot;4&quot;/&gt;&lt;path d=&quot;M12 9l1-5h6l1 5M12 23l1 5h6l1-5&quot;/&gt;&lt;/svg&gt;
+            &lt;h3&gt;Apple Watch&lt;/h3&gt;
+            &lt;ul&gt;
+              &lt;li data-i18n=&quot;svc_watch_1&quot;&gt;Layar retak&lt;/li&gt;
+              &lt;li data-i18n=&quot;svc_watch_2&quot;&gt;Baterai&lt;/li&gt;
+              &lt;li data-i18n=&quot;svc_watch_3&quot;&gt;Crown dan tombol samping&lt;/li&gt;
+            &lt;/ul&gt;
+          &lt;/article&gt;
+          &lt;article class=&quot;card reveal&quot;&gt;
+            &lt;svg class=&quot;ico&quot; viewBox=&quot;0 0 32 32&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M11 5a4 4 0 0 1 4 4v9a3 3 0 0 1-6 0V9a4 4 0 0 1 2-4zM21 5a4 4 0 0 0-4 4v9a3 3 0 0 0 6 0V9a4 4 0 0 0-2-4z&quot;/&gt;&lt;/svg&gt;
+            &lt;h3 data-i18n=&quot;svc_acc_t&quot;&gt;Aksesori&lt;/h3&gt;
+            &lt;ul&gt;
+              &lt;li&gt;AirPods&lt;/li&gt;
+              &lt;li&gt;Apple Pencil&lt;/li&gt;
+              &lt;li data-i18n=&quot;svc_acc_1&quot;&gt;Charger dan kabel&lt;/li&gt;
+            &lt;/ul&gt;
+          &lt;/article&gt;
+        &lt;/div&gt;
+
+        &lt;div class=&quot;symptoms reveal&quot;&gt;
+          &lt;p class=&quot;symptoms-label&quot; data-i18n=&quot;sym_label&quot;&gt;Gejala yang sering datang. Klik, lalu kami siapkan pesannya.&lt;/p&gt;
+          &lt;div class=&quot;tags&quot; id=&quot;tags&quot;&gt;&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+
+    &lt;!-- CARA KERJA --&gt;
+    &lt;section class=&quot;process&quot; id=&quot;cara-kerja&quot;&gt;
+      &lt;div class=&quot;wrap&quot;&gt;
+        &lt;div class=&quot;sec-head reveal&quot;&gt;
+          &lt;p class=&quot;kicker&quot; data-i18n=&quot;proc_kicker&quot;&gt;Cara kerja&lt;/p&gt;
+          &lt;h2 data-i18n=&quot;proc_title&quot;&gt;Empat langkah, tanpa kejutan&lt;/h2&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;steps steps-4&quot;&gt;
+          &lt;div class=&quot;step reveal&quot;&gt;
+            &lt;span class=&quot;num&quot;&gt;01&lt;/span&gt;
+            &lt;h3 data-i18n=&quot;proc_1t&quot;&gt;Konsultasi&lt;/h3&gt;
+            &lt;p data-i18n=&quot;proc_1p&quot;&gt;Ceritakan gejalanya lewat WhatsApp atau datang langsung. Foto atau video sangat membantu.&lt;/p&gt;
+          &lt;/div&gt;
+          &lt;div class=&quot;step reveal&quot;&gt;
+            &lt;span class=&quot;num&quot;&gt;02&lt;/span&gt;
+            &lt;h3 data-i18n=&quot;proc_2t&quot;&gt;Diagnosa dan estimasi&lt;/h3&gt;
+            &lt;p data-i18n=&quot;proc_2p&quot;&gt;Perangkat dicek, masalahnya dijelaskan, dan estimasi biaya disampaikan sebelum apa pun dibongkar.&lt;/p&gt;
+          &lt;/div&gt;
+          &lt;div class=&quot;step reveal&quot;&gt;
+            &lt;span class=&quot;num&quot;&gt;03&lt;/span&gt;
+            &lt;h3 data-i18n=&quot;proc_3t&quot;&gt;Perbaikan dan pengujian&lt;/h3&gt;
+            &lt;p data-i18n=&quot;proc_3p&quot;&gt;Dikerjakan setelah kamu setuju. Fungsi perangkat dites sebelum diserahkan kembali.&lt;/p&gt;
+          &lt;/div&gt;
+          &lt;div class=&quot;step reveal&quot;&gt;
+            &lt;span class=&quot;num&quot;&gt;04&lt;/span&gt;
+            &lt;h3 data-i18n=&quot;proc_4t&quot;&gt;Serah terima dan garansi&lt;/h3&gt;
+            &lt;p data-i18n=&quot;proc_4p&quot;&gt;Perangkat pulang bersama kartu serah terima yang memuat hasil cek dan detail garansi.&lt;/p&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+
+    &lt;!-- DAFTAR HARGA --&gt;
+    &lt;section class=&quot;pricing&quot; id=&quot;harga&quot;&gt;
+      &lt;div class=&quot;wrap&quot;&gt;
+        &lt;div class=&quot;sec-head reveal&quot;&gt;
+          &lt;p class=&quot;kicker&quot; data-i18n=&quot;price_kicker&quot;&gt;Daftar harga&lt;/p&gt;
+          &lt;h2 data-i18n=&quot;price_title&quot;&gt;Biaya yang disampaikan di awal&lt;/h2&gt;
+          &lt;p data-i18n=&quot;price_lead&quot;&gt;Harga final bergantung pada kondisi perangkat dan tipe. Kamu selalu dapat estimasi sebelum pengerjaan dimulai.&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;price-tabs&quot; id=&quot;price-tabs&quot; role=&quot;tablist&quot; aria-label=&quot;Pilih perangkat&quot;&gt;&lt;/div&gt;
+        &lt;div class=&quot;price-table reveal&quot; id=&quot;price-table&quot; role=&quot;tabpanel&quot;&gt;&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+
+    &lt;!-- FEED (muncul bila data diisi) --&gt;
+    &lt;section class=&quot;feed&quot; id=&quot;feed&quot; hidden&gt;
+      &lt;div class=&quot;wrap&quot;&gt;
+        &lt;div class=&quot;sec-head reveal&quot;&gt;
+          &lt;p class=&quot;kicker&quot; data-i18n=&quot;feed_kicker&quot;&gt;Feed&lt;/p&gt;
+          &lt;h2 data-i18n=&quot;feed_title&quot;&gt;Dari meja servis&lt;/h2&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;feed-grid&quot; id=&quot;feed-grid&quot;&gt;&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+
+    &lt;!-- VIDEO (muncul bila data diisi) --&gt;
+    &lt;section class=&quot;videos&quot; id=&quot;video&quot; hidden&gt;
+      &lt;div class=&quot;wrap&quot;&gt;
+        &lt;div class=&quot;sec-head reveal&quot;&gt;
+          &lt;p class=&quot;kicker&quot; data-i18n=&quot;video_kicker&quot;&gt;Reels&lt;/p&gt;
+          &lt;h2 data-i18n=&quot;video_title&quot;&gt;Lihat langsung prosesnya&lt;/h2&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;video-grid&quot; id=&quot;video-grid&quot;&gt;&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+
+    &lt;!-- TESTIMONI (muncul bila data diisi) --&gt;
+    &lt;section class=&quot;testi&quot; id=&quot;testimoni&quot; hidden&gt;
+      &lt;div class=&quot;wrap&quot;&gt;
+        &lt;div class=&quot;sec-head reveal&quot;&gt;
+          &lt;p class=&quot;kicker&quot; data-i18n=&quot;testi_kicker&quot;&gt;Kata pelanggan&lt;/p&gt;
+          &lt;h2 data-i18n=&quot;testi_title&quot;&gt;Cerita dari meja servis&lt;/h2&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;grid&quot; id=&quot;testi-grid&quot;&gt;&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+
+    &lt;!-- KENAPA --&gt;
+    &lt;section id=&quot;kenapa&quot;&gt;
+      &lt;div class=&quot;wrap why&quot;&gt;
+        &lt;figure class=&quot;photo photo-tall reveal&quot; data-photo=&quot;team&quot; data-label=&quot;Foto tim / meja kerja FIXONE&quot; data-label-en=&quot;FIXONE team / workbench photo&quot;&gt;&lt;/figure&gt;
+        &lt;div&gt;
+          &lt;div class=&quot;sec-head reveal&quot;&gt;
+            &lt;p class=&quot;kicker&quot; data-i18n=&quot;why_kicker&quot;&gt;Kenapa FIXONE&lt;/p&gt;
+            &lt;h2 data-i18n=&quot;why_title&quot;&gt;Servis yang bisa kamu pahami&lt;/h2&gt;
+          &lt;/div&gt;
+          &lt;div class=&quot;why-grid&quot;&gt;
+            &lt;div class=&quot;why-item reveal&quot;&gt;
+              &lt;h3 data-i18n=&quot;why_1t&quot;&gt;Harga transparan&lt;/h3&gt;
+              &lt;p data-i18n=&quot;why_1p&quot;&gt;Biaya disampaikan di awal dan disetujui dulu, jadi tidak ada angka yang tiba-tiba berubah di akhir.&lt;/p&gt;
+            &lt;/div&gt;
+            &lt;div class=&quot;why-item reveal&quot;&gt;
+              &lt;h3 data-i18n=&quot;why_2t&quot;&gt;Penjelasan bahasa biasa&lt;/h3&gt;
+              &lt;p data-i18n=&quot;why_2p&quot;&gt;Kamu tahu apa yang rusak dan kenapa, tanpa istilah teknis yang membingungkan.&lt;/p&gt;
+            &lt;/div&gt;
+            &lt;div class=&quot;why-item reveal&quot;&gt;
+              &lt;h3 data-i18n=&quot;why_3t&quot;&gt;Dukungan setelah servis&lt;/h3&gt;
+              &lt;p data-i18n=&quot;why_3p&quot;&gt;Ada masalah setelah perangkat pulang? Hubungi kami lewat nomor yang sama.&lt;/p&gt;
+            &lt;/div&gt;
+            &lt;div class=&quot;why-item reveal&quot;&gt;
+              &lt;h3 data-i18n=&quot;why_4t&quot;&gt;Independen, dan kami sebut terang-terangan&lt;/h3&gt;
+              &lt;p data-i18n=&quot;why_4p&quot;&gt;FIXONE adalah layanan servis independen dan tidak berafiliasi dengan Apple Inc. Itu kami sampaikan sejak awal supaya kamu bisa memutuskan dengan tenang.&lt;/p&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+
+    &lt;!-- SERAH TERIMA --&gt;
+    &lt;section class=&quot;handover&quot; id=&quot;serah-terima&quot;&gt;
+      &lt;div class=&quot;wrap&quot;&gt;
+        &lt;div class=&quot;reveal&quot;&gt;
+          &lt;div class=&quot;sec-head&quot;&gt;
+            &lt;p class=&quot;kicker&quot; data-i18n=&quot;ho_kicker&quot;&gt;Kartu serah terima&lt;/p&gt;
+            &lt;h2 data-i18n=&quot;ho_title&quot;&gt;Pulang dengan catatan yang jelas&lt;/h2&gt;
+            &lt;p data-i18n=&quot;ho_p&quot;&gt;Setiap perangkat kembali bersama kartu yang memuat hasil pengecekan, status perbaikan, dan detail garansi.&lt;/p&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;hcard reveal&quot; aria-label=&quot;Contoh kartu serah terima&quot;&gt;
+          &lt;div class=&quot;hcard-top&quot;&gt;
+            &lt;span class=&quot;wm&quot;&gt;FI&lt;span class=&quot;x&quot;&gt;X&lt;/span&gt;ONE&lt;/span&gt;
+            &lt;span class=&quot;tag&quot; data-i18n=&quot;ho_tag&quot;&gt;Contoh&lt;/span&gt;
+          &lt;/div&gt;
+          &lt;div class=&quot;hrow&quot;&gt;&lt;span data-i18n=&quot;ho_r1&quot;&gt;Perangkat dicek&lt;/span&gt;&lt;span data-i18n=&quot;ho_r1v&quot;&gt;Layar, baterai, port, kamera&lt;/span&gt;&lt;/div&gt;
+          &lt;div class=&quot;hrow&quot;&gt;&lt;span data-i18n=&quot;ho_r2&quot;&gt;Status perbaikan&lt;/span&gt;&lt;span data-i18n=&quot;ho_r2v&quot;&gt;Selesai&lt;/span&gt;&lt;/div&gt;
+          &lt;div class=&quot;hrow&quot;&gt;&lt;span data-i18n=&quot;ho_r3&quot;&gt;Detail garansi&lt;/span&gt;&lt;span data-i18n=&quot;ho_r3v&quot;&gt;Tertera di kartu&lt;/span&gt;&lt;/div&gt;
+          &lt;p class=&quot;fine&quot; data-i18n=&quot;ho_fine&quot;&gt;Layanan servis independen. Tidak berafiliasi dengan Apple Inc.&lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+
+    &lt;!-- BOOKING + LOKASI --&gt;
+    &lt;section class=&quot;booking&quot; id=&quot;booking&quot;&gt;
+      &lt;div class=&quot;wrap&quot;&gt;
+        &lt;div class=&quot;reveal&quot;&gt;
+          &lt;div class=&quot;sec-head&quot;&gt;
+            &lt;p class=&quot;kicker&quot; data-i18n=&quot;bk_kicker&quot;&gt;Mulai perbaikan&lt;/p&gt;
+            &lt;h2 data-i18n=&quot;bk_title&quot;&gt;Ceritakan masalahnya, kami balas&lt;/h2&gt;
+            &lt;p data-i18n=&quot;bk_p&quot;&gt;Isi singkat di bawah. Pesannya terkirim lewat WhatsApp, jadi kamu bisa langsung lanjut ngobrol dan kirim foto.&lt;/p&gt;
+          &lt;/div&gt;
+
+          &lt;form id=&quot;wa-form&quot; novalidate&gt;
+            &lt;label&gt;&lt;span data-i18n=&quot;f_name&quot;&gt;Nama&lt;/span&gt;
+              &lt;input type=&quot;text&quot; name=&quot;name&quot; autocomplete=&quot;name&quot; required&gt;
+            &lt;/label&gt;
+            &lt;label&gt;&lt;span data-i18n=&quot;f_device&quot;&gt;Perangkat&lt;/span&gt;
+              &lt;select name=&quot;device&quot; required&gt;
+                &lt;option value=&quot;iPhone&quot;&gt;iPhone&lt;/option&gt;
+                &lt;option value=&quot;MacBook&quot;&gt;MacBook&lt;/option&gt;
+                &lt;option value=&quot;iPad&quot;&gt;iPad&lt;/option&gt;
+                &lt;option value=&quot;Apple Watch&quot;&gt;Apple Watch&lt;/option&gt;
+                &lt;option value=&quot;Aksesori&quot; data-i18n=&quot;f_acc&quot;&gt;Aksesori&lt;/option&gt;
+                &lt;option value=&quot;Lainnya&quot; data-i18n=&quot;f_other&quot;&gt;Lainnya&lt;/option&gt;
+              &lt;/select&gt;
+            &lt;/label&gt;
+            &lt;label&gt;&lt;span data-i18n=&quot;f_issue&quot;&gt;Keluhan&lt;/span&gt;
+              &lt;textarea name=&quot;issue&quot; data-i18n-ph=&quot;f_issue_ph&quot; placeholder=&quot;Contoh: layar iPhone 13 pecah setelah jatuh, touch masih jalan.&quot; required&gt;&lt;/textarea&gt;
+            &lt;/label&gt;
+            &lt;button class=&quot;btn btn-blue&quot; type=&quot;submit&quot;&gt;&lt;span data-i18n=&quot;f_send&quot;&gt;Kirim lewat WhatsApp&lt;/span&gt; &lt;span class=&quot;dot&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;&lt;/button&gt;
+            &lt;p class=&quot;form-note&quot; data-i18n=&quot;f_note&quot;&gt;Tombol ini membuka WhatsApp dengan pesan yang sudah terisi. Situs ini tidak menyimpan datamu.&lt;/p&gt;
+          &lt;/form&gt;
+        &lt;/div&gt;
+
+        &lt;aside class=&quot;reveal&quot; aria-label=&quot;Informasi kontak&quot;&gt;
+          &lt;figure class=&quot;photo photo-wide&quot; data-photo=&quot;store&quot; data-label=&quot;Foto tampak depan lokasi FIXONE&quot; data-label-en=&quot;FIXONE storefront photo&quot;&gt;&lt;/figure&gt;
+          &lt;ul class=&quot;contact-list&quot;&gt;
+            &lt;li data-contact=&quot;whatsapp&quot;&gt;&lt;b&gt;WhatsApp&lt;/b&gt;&lt;a data-wa href=&quot;#booking&quot; data-wa-text&gt;—&lt;/a&gt;&lt;/li&gt;
+            &lt;li data-contact=&quot;address&quot;&gt;&lt;b data-i18n=&quot;c_loc&quot;&gt;Lokasi&lt;/b&gt;&lt;span data-fill=&quot;address&quot;&gt;&lt;/span&gt;&lt;/li&gt;
+            &lt;li data-contact=&quot;hours&quot;&gt;&lt;b data-i18n=&quot;c_hours&quot;&gt;Jam buka&lt;/b&gt;&lt;span data-fill=&quot;hours&quot;&gt;&lt;/span&gt;&lt;/li&gt;
+            &lt;li data-contact=&quot;email&quot;&gt;&lt;b&gt;Email&lt;/b&gt;&lt;a data-fill-link=&quot;email&quot; href=&quot;#&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+            &lt;li data-contact=&quot;instagram&quot;&gt;&lt;b&gt;Instagram&lt;/b&gt;&lt;a data-fill-link=&quot;instagram&quot; href=&quot;#&quot;&gt;&lt;/a&gt;&lt;/li&gt;
+          &lt;/ul&gt;
+          &lt;a class=&quot;btn btn-outline&quot; id=&quot;map-btn&quot; href=&quot;#&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot; hidden data-i18n=&quot;c_map&quot;&gt;Buka di Google Maps&lt;/a&gt;
+        &lt;/aside&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+  &lt;/main&gt;
+
+  &lt;footer class=&quot;site-footer&quot;&gt;
+    &lt;div class=&quot;wrap&quot;&gt;
+      &lt;div&gt;
+        &lt;span class=&quot;wm&quot;&gt;FI&lt;span class=&quot;x&quot;&gt;X&lt;/span&gt;ONE&lt;/span&gt;
+        &lt;p style=&quot;margin-top:10px&quot; data-i18n=&quot;ft_p&quot;&gt;Device care specialist untuk iPhone, iPad, MacBook, dan Apple Watch di Bali.&lt;/p&gt;
+      &lt;/div&gt;
+      &lt;p class=&quot;legal&quot; data-i18n=&quot;ft_legal&quot;&gt;Layanan servis independen, tidak berafiliasi dengan Apple Inc. Apple, iPhone, iPad, MacBook, dan Apple Watch adalah merek dagang Apple Inc.&lt;/p&gt;
+    &lt;/div&gt;
+  &lt;/footer&gt;
+
+  &lt;a class=&quot;wa-float&quot; data-wa href=&quot;#booking&quot; aria-label=&quot;Chat WhatsApp FIXONE&quot;&gt;
+    &lt;svg viewBox=&quot;0 0 32 32&quot; width=&quot;24&quot; height=&quot;24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; aria-hidden=&quot;true&quot;&gt;&lt;path d=&quot;M16 4a12 12 0 0 0-10.3 18.1L4 28l6.1-1.6A12 12 0 1 0 16 4z&quot;/&gt;&lt;path d=&quot;M12 11.5c.4 3.6 3.4 6.8 7.3 8.1l1.9-1.7-2.6-1.6-1.2.8c-1.2-.6-2.2-1.6-2.8-2.8l.9-1.2-1.6-2.7z&quot; fill=&quot;currentColor&quot; stroke=&quot;none&quot;/&gt;&lt;/svg&gt;
+    &lt;span data-i18n=&quot;wa_short&quot;&gt;WhatsApp&lt;/span&gt;&lt;span class=&quot;dot&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;
+  &lt;/a&gt;
+
+&lt;script&gt;
+/* FIXONE — data konten.
+   Semua hal yang harus diisi dengan data NYATA ada di file ini.
+   Bagian yang dikosongkan otomatis disembunyikan, jadi tidak ada angka atau
+   testimoni karangan yang tampil di situs. */
+
+const CONFIG = {
+  // Nomor WhatsApp format internasional, tanpa &quot;+&quot; dan tanpa spasi. Contoh: 6281234567890
+  whatsapp: &quot;6282234561212&quot;,
+  whatsappDisplay: &quot;+62 822-3456-1212&quot;,
+
+  address: &quot;Bali&quot;,     // alamat lengkap
+  mapsUrl: &quot;&quot;,         // tautan Google Maps ke lokasi. Kosong = tombol peta tersembunyi
+  hours: &quot;&quot;,           // contoh: &quot;Senin–Sabtu, 09.00–18.00&quot;
+  instagram: &quot;&quot;,       // username tanpa @
+  email: &quot;&quot;,
+
+  // Foto nyata. Taruh file di assets/img/ lalu isi path-nya. Kosong = tampil bingkai penanda.
+  images: {
+    hero: &quot;&quot;,          // foto teknisi/bengkel, rasio 4:5, minimal 900x1125
+    team: &quot;&quot;,          // foto tim atau meja kerja, rasio 4:5
+    store: &quot;&quot;          // foto tampak depan lokasi, rasio 16:10
+  },
+
+  // Angka nyata untuk strip kredibilitas. Kosong = strip diganti tiga janji layanan.
+  // Contoh: [{ value: &quot;1.200+&quot;, label: &quot;perangkat selesai&quot; }, { value: &quot;4,9&quot;, label: &quot;rating Google&quot; }]
+  stats: []
+};
+
+/* Daftar harga. price: angka rupiah (mis. 450000) atau null untuk &quot;Tanya harga&quot;.
+   Hapus satu perangkat dari objek ini bila tidak melayaninya. */
+const PRICELIST = {
+  &quot;iPhone&quot;: [
+    { name: &quot;Ganti layar&quot;, price: null },
+    { name: &quot;Ganti baterai&quot;, price: null },
+    { name: &quot;Perbaikan port charging&quot;, price: null },
+    { name: &quot;Kamera, speaker, mikrofon&quot;, price: null },
+    { name: &quot;Penanganan terkena cairan&quot;, price: null }
+  ],
+  &quot;iPad&quot;: [
+    { name: &quot;Ganti layar dan touch&quot;, price: null },
+    { name: &quot;Ganti baterai&quot;, price: null },
+    { name: &quot;Perbaikan port charging&quot;, price: null }
+  ],
+  &quot;MacBook&quot;: [
+    { name: &quot;Ganti layar&quot;, price: null },
+    { name: &quot;Keyboard dan trackpad&quot;, price: null },
+    { name: &quot;Ganti baterai&quot;, price: null },
+    { name: &quot;Penanganan mati total / cairan&quot;, price: null }
+  ],
+  &quot;Apple Watch&quot;: [
+    { name: &quot;Ganti layar&quot;, price: null },
+    { name: &quot;Ganti baterai&quot;, price: null }
+  ]
+};
+
+/* Testimoni nyata. Kosong = bagian testimoni tersembunyi.
+   Contoh: { name: &quot;Made&quot;, role: &quot;Fotografer&quot;, quote: &quot;Teks asli dari pelanggan.&quot;, photo: &quot;assets/img/made.jpg&quot; } */
+const TESTIMONIALS = [];
+
+/* Diisi otomatis oleh panel /admin saat &quot;Publish&quot;. Jangan edit manual kecuali perlu.
+   Bila kosong, situs memakai nilai bawaan di assets/js/content.js. */
+window.SITE_DATA = null;
+
+/* FIXONE — main.js
+   Data (kontak, foto, harga, testimoni) ada di assets/js/content.js.
+   File ini hanya mengurus tampilan, bahasa, dan tautan WhatsApp. */
+
+const EN = {
+  skip: &quot;Skip to content&quot;,
+  nav_services: &quot;Services&quot;, nav_process: &quot;How it works&quot;, nav_price: &quot;Pricing&quot;, nav_why: &quot;Why FIXONE&quot;, nav_contact: &quot;Contact&quot;,
+  nav_start: &quot;Start a repair&quot;, wa_short: &quot;WhatsApp&quot;,
+  hero_eyebrow: &quot;Apple device care · Bali&quot;,
+  hero_lead: &quot;Independent repair for iPhone, iPad, MacBook, and Apple Watch. Checked first, explained clearly, and only repaired once you say yes.&quot;,
+  cta_start: &quot;Start a repair&quot;, cta_contact: &quot;Contact us&quot;,
+  dev_title: &quot;Repair status&quot;, dev_sub: &quot;Sample handover card&quot;,
+  dev_1: &quot;Device checked&quot;, dev_1s: &quot;Diagnosis done&quot;,
+  dev_2: &quot;Estimate approved&quot;, dev_2s: &quot;Before any work starts&quot;,
+  dev_3: &quot;In progress&quot;, dev_3s: &quot;Updates on WhatsApp&quot;,
+  svc_kicker: &quot;Services&quot;, svc_title: &quot;What we repair&quot;,
+  svc_lead: &quot;Pick your device. If your symptom isn&#x27;t listed, just tell us.&quot;,
+  svc_iphone_1: &quot;Cracked or unresponsive screen&quot;, svc_iphone_2: &quot;Battery drains fast&quot;,
+  svc_iphone_3: &quot;Charging port and camera&quot;, svc_iphone_4: &quot;Water or liquid exposure&quot;,
+  svc_mac_1: &quot;Cracked screen or display lines&quot;, svc_mac_2: &quot;Keyboard and trackpad&quot;,
+  svc_mac_3: &quot;Swollen battery&quot;, svc_mac_4: &quot;Dead machine or liquid damage&quot;,
+  svc_ipad_1: &quot;Screen and touch problems&quot;, svc_ipad_2: &quot;Battery that doesn&#x27;t last&quot;,
+  svc_ipad_3: &quot;Charging port&quot;, svc_ipad_4: &quot;Won&#x27;t turn on&quot;,
+  svc_watch_1: &quot;Cracked screen&quot;, svc_watch_2: &quot;Battery&quot;, svc_watch_3: &quot;Crown and side button&quot;,
+  svc_acc_t: &quot;Accessories&quot;, svc_acc_1: &quot;Chargers and cables&quot;,
+  sym_label: &quot;Common symptoms. Tap one and we&#x27;ll prepare the message.&quot;,
+  proc_kicker: &quot;How it works&quot;, proc_title: &quot;Four steps, no surprises&quot;,
+  proc_1t: &quot;Consultation&quot;, proc_1p: &quot;Tell us the symptoms on WhatsApp or drop by. A photo or video helps a lot.&quot;,
+  proc_2t: &quot;Diagnosis and estimate&quot;, proc_2p: &quot;Your device is checked, the problem is explained, and the cost estimate comes before anything is opened.&quot;,
+  proc_3t: &quot;Repair and testing&quot;, proc_3p: &quot;Work starts after you agree. Functions are tested before the device goes back to you.&quot;,
+  proc_4t: &quot;Handover and warranty&quot;, proc_4p: &quot;Your device returns with a handover card listing what was checked and the warranty details.&quot;,
+  price_kicker: &quot;Pricing&quot;, price_title: &quot;Costs shared upfront&quot;,
+  price_lead: &quot;Final price depends on the device model and its condition. You always get an estimate before work begins.&quot;,
+  feed_kicker: &quot;Feed&quot;, feed_title: &quot;From the repair bench&quot;,
+  video_kicker: &quot;Reels&quot;, video_title: &quot;See the process up close&quot;,
+  testi_kicker: &quot;Customer voices&quot;, testi_title: &quot;Stories from the repair bench&quot;,
+  why_kicker: &quot;Why FIXONE&quot;, why_title: &quot;Repair you can actually follow&quot;,
+  why_1t: &quot;Transparent pricing&quot;, why_1p: &quot;Cost is shared upfront and approved first, so the number doesn&#x27;t change at the end.&quot;,
+  why_2t: &quot;Plain-language explanations&quot;, why_2p: &quot;You know what&#x27;s broken and why, without confusing jargon.&quot;,
+  why_3t: &quot;Support after the repair&quot;, why_3p: &quot;Something off after you get your device back? Reach us on the same number.&quot;,
+  why_4t: &quot;Independent, and we say so&quot;, why_4p: &quot;FIXONE is an independent repair service and is not affiliated with Apple Inc. We tell you upfront so you can decide with confidence.&quot;,
+  ho_kicker: &quot;Handover card&quot;, ho_title: &quot;Leave with a clear record&quot;,
+  ho_p: &quot;Every device goes back with a card listing the checks done, the repair status, and the warranty details.&quot;,
+  ho_tag: &quot;Sample&quot;, ho_r1: &quot;Device checked&quot;, ho_r1v: &quot;Screen, battery, port, camera&quot;,
+  ho_r2: &quot;Repair status&quot;, ho_r2v: &quot;Completed&quot;, ho_r3: &quot;Warranty details&quot;, ho_r3v: &quot;Listed on the card&quot;,
+  ho_fine: &quot;Independent repair service. Not affiliated with Apple Inc.&quot;,
+  bk_kicker: &quot;Start a repair&quot;, bk_title: &quot;Tell us what&#x27;s wrong, we&#x27;ll reply&quot;,
+  bk_p: &quot;Fill in the short form. It sends over WhatsApp, so you can carry on chatting and send photos right away.&quot;,
+  f_name: &quot;Name&quot;, f_device: &quot;Device&quot;, f_other: &quot;Other&quot;, f_acc: &quot;Accessory&quot;, f_issue: &quot;Problem&quot;,
+  f_issue_ph: &quot;Example: iPhone 13 screen cracked after a fall, touch still works.&quot;,
+  f_send: &quot;Send via WhatsApp&quot;,
+  f_note: &quot;This opens WhatsApp with the message pre-filled. This site doesn&#x27;t store your data.&quot;,
+  c_loc: &quot;Location&quot;, c_hours: &quot;Opening hours&quot;, c_map: &quot;Open in Google Maps&quot;,
+  ft_p: &quot;Device care specialist for iPhone, iPad, MacBook, and Apple Watch in Bali.&quot;,
+  ft_legal: &quot;Independent repair service, not affiliated with Apple Inc. Apple, iPhone, iPad, MacBook, and Apple Watch are trademarks of Apple Inc.&quot;
+};
+
+/* Teks dinamis (dibuat lewat JS, jadi tidak lewat atribut data-i18n) */
+const DYN = {
+  id: {
+    hello: &quot;Halo FIXONE, saya mau tanya servis perangkat.&quot;,
+    form: (n, d, i) =&gt; `Halo FIXONE, saya ${n}.\nPerangkat: ${d}\nKeluhan: ${i}`,
+    symptom: (s) =&gt; `Halo FIXONE, perangkat saya bermasalah: ${s}. Bisa dicek?`,
+    priceAsk: (d, n) =&gt; `Halo FIXONE, mau tanya estimasi biaya ${n} untuk ${d}.`,
+    missing: &quot;Isi nama dan keluhan dulu ya.&quot;,
+    ask: &quot;Tanya harga&quot;,
+    from: &quot;mulai dari &quot;,
+    note: &quot;Harga bersifat estimasi awal. Biaya final dikonfirmasi setelah perangkat dicek.&quot;,
+    ph: &quot;Foto belum diisi&quot;,
+    watch: &quot;Tonton video&quot;,
+    play: &quot;Putar reels&quot;,
+    strip: [&quot;Estimasi sebelum pengerjaan&quot;, &quot;Kabar progres lewat WhatsApp&quot;, &quot;Kartu serah terima dan garansi&quot;]
+  },
+  en: {
+    hello: &quot;Hi FIXONE, I&#x27;d like to ask about a repair.&quot;,
+    form: (n, d, i) =&gt; `Hi FIXONE, I&#x27;m ${n}.\nDevice: ${d}\nProblem: ${i}`,
+    symptom: (s) =&gt; `Hi FIXONE, my device has a problem: ${s}. Can you check it?`,
+    priceAsk: (d, n) =&gt; `Hi FIXONE, I&#x27;d like an estimate for ${n} on my ${d}.`,
+    missing: &quot;Please fill in your name and the problem first.&quot;,
+    ask: &quot;Ask for price&quot;,
+    from: &quot;from &quot;,
+    note: &quot;Prices are initial estimates. The final cost is confirmed after the device is checked.&quot;,
+    ph: &quot;Photo not added yet&quot;,
+    watch: &quot;Watch video&quot;,
+    play: &quot;Play reel&quot;,
+    strip: [&quot;Estimate before any work&quot;, &quot;Progress updates on WhatsApp&quot;, &quot;Handover card and warranty&quot;]
+  }
+};
+
+const SYMPTOMS = {
+  id: [&quot;Layar pecah&quot;, &quot;Touch tidak responsif&quot;, &quot;Baterai boros&quot;, &quot;Tidak bisa charge&quot;, &quot;Face ID error&quot;, &quot;Kamera buram&quot;, &quot;Kena air&quot;, &quot;Mati total&quot;, &quot;MacBook lemot&quot;, &quot;Keyboard macet&quot;],
+  en: [&quot;Cracked screen&quot;, &quot;Touch not responding&quot;, &quot;Battery drains fast&quot;, &quot;Won&#x27;t charge&quot;, &quot;Face ID error&quot;, &quot;Blurry camera&quot;, &quot;Water damage&quot;, &quot;Won&#x27;t turn on&quot;, &quot;Slow MacBook&quot;, &quot;Sticky keyboard&quot;]
+};
+
+const PRICE_EN = {
+  &quot;Ganti layar&quot;: &quot;Screen replacement&quot;, &quot;Ganti baterai&quot;: &quot;Battery replacement&quot;,
+  &quot;Perbaikan port charging&quot;: &quot;Charging port repair&quot;, &quot;Kamera, speaker, mikrofon&quot;: &quot;Camera, speaker, microphone&quot;,
+  &quot;Penanganan terkena cairan&quot;: &quot;Liquid damage treatment&quot;, &quot;Ganti layar dan touch&quot;: &quot;Screen and touch replacement&quot;,
+  &quot;Keyboard dan trackpad&quot;: &quot;Keyboard and trackpad&quot;, &quot;Penanganan mati total / cairan&quot;: &quot;Dead machine / liquid damage&quot;
+};
+
+let lang = &quot;id&quot;;
+let activeDevice = Object.keys(PRICELIST)[0];
+const MAX_FEED = 20;
+const MAX_REELS = 10;
+let FEED = [];
+let VIDEOS = [];
+let FEED_RATIO = &quot;4:5&quot;;
+
+/* Data dari panel admin (assets/data/site.js) menimpa nilai bawaan content.js */
+function applyData(d) {
+  if (!d) return;
+  if (d.config) {
+    const { images, stats, ...rest } = d.config;
+    Object.assign(CONFIG, rest);
+    if (images) Object.assign(CONFIG.images, images);
+    if (Array.isArray(stats)) CONFIG.stats = stats;
+  }
+  if (d.pricelist) {
+    Object.keys(PRICELIST).forEach((k) =&gt; delete PRICELIST[k]);
+    Object.assign(PRICELIST, d.pricelist);
+  }
+  if (Array.isArray(d.testimonials)) { TESTIMONIALS.length = 0; TESTIMONIALS.push(...d.testimonials); }
+  FEED = Array.isArray(d.feed) ? d.feed : [];
+  VIDEOS = Array.isArray(d.videos) ? d.videos : [];
+  FEED_RATIO = d.feedRatio === &quot;16:9&quot; ? &quot;16:9&quot; : &quot;4:5&quot;;
+  if (!PRICELIST[activeDevice]) activeDevice = Object.keys(PRICELIST)[0];
+}
+
+const $ = (s, r = document) =&gt; r.querySelector(s);
+const $$ = (s, r = document) =&gt; [...r.querySelectorAll(s)];
+const waUrl = (text) =&gt; `https://api.whatsapp.com/send?phone=${CONFIG.whatsapp}&amp;text=${encodeURIComponent(text)}`;
+
+function refreshWaLinks() {
+  $$(&quot;[data-wa]&quot;).forEach((a) =&gt; {
+    a.href = waUrl(DYN[lang].hello);
+    a.target = &quot;_blank&quot;;
+    a.rel = &quot;noopener&quot;;
+  });
+  $$(&quot;[data-wa-text]&quot;).forEach((a) =&gt; { a.textContent = CONFIG.whatsappDisplay; });
+  const bar = $(&#x27;[data-contact-bar=&quot;whatsapp&quot;]&#x27;);
+  if (bar) bar.textContent = &quot;WhatsApp &quot; + CONFIG.whatsappDisplay;
+}
+
+function fillContact() {
+  const hide = (key, on) =&gt; { const li = $(`[data-contact=&quot;${key}&quot;]`); if (li) li.hidden = on; };
+  const text = (key, v) =&gt; {
+    hide(key, !v);
+    const el = $(`[data-contact=&quot;${key}&quot;] [data-fill]`);
+    if (el &amp;&amp; v) el.textContent = v;
+  };
+  text(&quot;address&quot;, CONFIG.address);
+  text(&quot;hours&quot;, CONFIG.hours);
+
+  hide(&quot;instagram&quot;, !CONFIG.instagram);
+  const ig = $(&#x27;[data-fill-link=&quot;instagram&quot;]&#x27;);
+  if (ig &amp;&amp; CONFIG.instagram) { ig.textContent = &quot;@&quot; + CONFIG.instagram; ig.href = &quot;https://instagram.com/&quot; + CONFIG.instagram; ig.target = &quot;_blank&quot;; ig.rel = &quot;noopener&quot;; }
+
+  hide(&quot;email&quot;, !CONFIG.email);
+  const em = $(&#x27;[data-fill-link=&quot;email&quot;]&#x27;);
+  if (em &amp;&amp; CONFIG.email) { em.textContent = CONFIG.email; em.href = &quot;mailto:&quot; + CONFIG.email; }
+
+  const map = $(&quot;#map-btn&quot;);
+  if (map) { map.hidden = !CONFIG.mapsUrl; if (CONFIG.mapsUrl) map.href = CONFIG.mapsUrl; }
+
+  const a = $(&#x27;[data-contact-bar=&quot;address&quot;]&#x27;); if (a) a.textContent = CONFIG.address || &quot;&quot;;
+  const h = $(&#x27;[data-contact-bar=&quot;hours&quot;]&#x27;); if (h) h.textContent = CONFIG.hours || &quot;&quot;;
+}
+
+function renderPhotos() {
+  $$(&quot;[data-photo]&quot;).forEach((fig) =&gt; {
+    const src = CONFIG.images[fig.dataset.photo];
+    const label = lang === &quot;en&quot; ? fig.dataset.labelEn : fig.dataset.label;
+    fig.classList.toggle(&quot;ph&quot;, !src);
+    fig.innerHTML = &quot;&quot;;
+    if (src) {
+      const img = document.createElement(&quot;img&quot;);
+      img.src = src; img.alt = label; img.loading = &quot;lazy&quot;;
+      fig.appendChild(img);
+    } else {
+      const s = document.createElement(&quot;span&quot;);
+      s.textContent = label;
+      const sm = document.createElement(&quot;small&quot;);
+      sm.textContent = DYN[lang].ph;
+      s.appendChild(sm);
+      fig.appendChild(s);
+    }
+  });
+}
+
+function renderStrip() {
+  const box = $(&quot;#strip-items&quot;);
+  box.innerHTML = &quot;&quot;;
+  if (CONFIG.stats &amp;&amp; CONFIG.stats.length) {
+    CONFIG.stats.forEach((s) =&gt; {
+      const d = document.createElement(&quot;div&quot;); d.className = &quot;strip-item&quot;;
+      d.innerHTML = &quot;&lt;b&gt;&lt;/b&gt;&lt;span&gt;&lt;/span&gt;&quot;;
+      d.firstChild.textContent = s.value; d.lastChild.textContent = s.label;
+      box.appendChild(d);
+    });
+  } else {
+    DYN[lang].strip.forEach((t) =&gt; {
+      const d = document.createElement(&quot;div&quot;); d.className = &quot;strip-item promise-item&quot;;
+      const s = document.createElement(&quot;span&quot;); s.textContent = t;
+      d.appendChild(s); box.appendChild(d);
+    });
+  }
+}
+
+function renderTags() {
+  const box = $(&quot;#tags&quot;);
+  box.innerHTML = &quot;&quot;;
+  SYMPTOMS[lang].forEach((s) =&gt; {
+    const b = document.createElement(&quot;button&quot;);
+    b.type = &quot;button&quot;; b.textContent = s;
+    b.addEventListener(&quot;click&quot;, () =&gt; window.open(waUrl(DYN[lang].symptom(s)), &quot;_blank&quot;, &quot;noopener&quot;));
+    box.appendChild(b);
+  });
+}
+
+const rupiah = (n) =&gt; &quot;Rp &quot; + new Intl.NumberFormat(&quot;id-ID&quot;).format(n);
+
+function renderPricing() {
+  $(&quot;#harga&quot;).hidden = !Object.keys(PRICELIST).length;
+  const tabs = $(&quot;#price-tabs&quot;);
+  const table = $(&quot;#price-table&quot;);
+  tabs.innerHTML = &quot;&quot;;
+  Object.keys(PRICELIST).forEach((dev) =&gt; {
+    const b = document.createElement(&quot;button&quot;);
+    b.type = &quot;button&quot;; b.setAttribute(&quot;role&quot;, &quot;tab&quot;);
+    b.setAttribute(&quot;aria-selected&quot;, String(dev === activeDevice));
+    b.textContent = dev;
+    b.addEventListener(&quot;click&quot;, () =&gt; { activeDevice = dev; renderPricing(); });
+    tabs.appendChild(b);
+  });
+  table.innerHTML = &quot;&quot;;
+  (PRICELIST[activeDevice] || []).forEach((row) =&gt; {
+    const name = lang === &quot;en&quot; ? (PRICE_EN[row.name] || row.name) : row.name;
+    const a = document.createElement(&quot;a&quot;);
+    a.className = &quot;price-row&quot;; a.target = &quot;_blank&quot;; a.rel = &quot;noopener&quot;;
+    a.href = waUrl(DYN[lang].priceAsk(activeDevice, name));
+    const nm = document.createElement(&quot;span&quot;); nm.className = &quot;nm&quot;; nm.textContent = name;
+    const pr = document.createElement(&quot;span&quot;); pr.className = &quot;pr&quot;;
+    if (typeof row.price === &quot;number&quot;) pr.textContent = DYN[lang].from + rupiah(row.price);
+    else { pr.textContent = DYN[lang].ask; pr.classList.add(&quot;ask&quot;); }
+    a.append(nm, pr);
+    table.appendChild(a);
+  });
+  const note = document.createElement(&quot;p&quot;);
+  note.className = &quot;price-note&quot;; note.textContent = DYN[lang].note;
+  table.appendChild(note);
+}
+
+function renderTestimonials() {
+  const sec = $(&quot;#testimoni&quot;);
+  if (!TESTIMONIALS.length) { sec.hidden = true; return; }
+  sec.hidden = false;
+  const grid = $(&quot;#testi-grid&quot;);
+  grid.innerHTML = &quot;&quot;;
+  TESTIMONIALS.forEach((t) =&gt; {
+    const q = document.createElement(&quot;blockquote&quot;); q.className = &quot;quote&quot;;
+    const p = document.createElement(&quot;p&quot;); p.textContent = t.quote;
+    const f = document.createElement(&quot;footer&quot;);
+    if (t.photo) { const i = document.createElement(&quot;img&quot;); i.src = t.photo; i.alt = t.name; i.loading = &quot;lazy&quot;; f.appendChild(i); }
+    const w = document.createElement(&quot;div&quot;);
+    const b = document.createElement(&quot;b&quot;); b.textContent = t.name;
+    const r = document.createElement(&quot;span&quot;); r.textContent = t.role || &quot;&quot;;
+    w.append(b, r); f.appendChild(w);
+    q.append(p, f); grid.appendChild(q);
+  });
+}
+
+function renderFeed() {
+  const sec = $(&quot;#feed&quot;);
+  const items = FEED.filter((f) =&gt; f &amp;&amp; f.src).slice(0, MAX_FEED);
+  sec.hidden = !items.length;
+  const grid = $(&quot;#feed-grid&quot;);
+  grid.className = &quot;feed-grid &quot; + (FEED_RATIO === &quot;16:9&quot; ? &quot;r169&quot; : &quot;r45&quot;);
+  grid.innerHTML = &quot;&quot;;
+  items.forEach((f) =&gt; {
+    const wrap = document.createElement(f.link ? &quot;a&quot; : &quot;figure&quot;);
+    wrap.className = &quot;feed-item&quot;;
+    if (f.link) { wrap.href = f.link; wrap.target = &quot;_blank&quot;; wrap.rel = &quot;noopener&quot;; }
+    const img = document.createElement(&quot;img&quot;);
+    img.src = f.src; img.alt = f.caption || &quot;FIXONE&quot;; img.loading = &quot;lazy&quot;;
+    img.style.objectPosition = &quot;center &quot; + (f.focus === &quot;top&quot; ? &quot;top&quot; : f.focus === &quot;bottom&quot; ? &quot;bottom&quot; : &quot;center&quot;);
+    wrap.appendChild(img);
+    if (f.caption) { const c = document.createElement(&quot;span&quot;); c.textContent = f.caption; wrap.appendChild(c); }
+    grid.appendChild(wrap);
+  });
+}
+
+function parseVideo(url) {
+  const u = (url || &quot;&quot;).trim();
+  const yt = u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&amp;)?v=|shorts\/|embed\/))([\w-]{11})/);
+  if (yt) return { kind: &quot;youtube&quot;, id: yt[1] };
+  if (/^data:video\//.test(u) || /\.(mp4|webm|mov)(\?|$)/i.test(u)) return { kind: &quot;file&quot;, src: u };
+  return { kind: &quot;link&quot;, src: u };
+}
+
+function renderVideos() {
+  const sec = $(&quot;#video&quot;);
+  const items = VIDEOS.filter((v) =&gt; v &amp;&amp; v.url).slice(0, MAX_REELS);
+  sec.hidden = !items.length;
+  const grid = $(&quot;#video-grid&quot;);
+  grid.className = &quot;video-grid reels&quot;;
+  grid.innerHTML = &quot;&quot;;
+  items.forEach((v) =&gt; {
+    const card = document.createElement(&quot;div&quot;);
+    const p = parseVideo(v.url);
+    if (p.kind === &quot;youtube&quot;) {
+      /* reels vertikal 9:16: gambar sampul dulu, iframe baru dimuat saat diklik (hemat data) */
+      card.className = &quot;reel&quot;;
+      const frame = document.createElement(&quot;div&quot;); frame.className = &quot;reel-frame&quot;;
+      const btn = document.createElement(&quot;button&quot;);
+      btn.type = &quot;button&quot;; btn.className = &quot;reel-play&quot;;
+      btn.setAttribute(&quot;aria-label&quot;, DYN[lang].play + (v.title ? &quot;: &quot; + v.title : &quot;&quot;));
+      const img = document.createElement(&quot;img&quot;);
+      img.src = &quot;https://i.ytimg.com/vi/&quot; + p.id + &quot;/hqdefault.jpg&quot;; img.alt = &quot;&quot;; img.loading = &quot;lazy&quot;;
+      img.addEventListener(&quot;error&quot;, () =&gt; img.remove());
+      const ic = document.createElement(&quot;span&quot;); ic.className = &quot;reel-icon&quot;; ic.setAttribute(&quot;aria-hidden&quot;, &quot;true&quot;);
+      btn.append(img, ic);
+      btn.addEventListener(&quot;click&quot;, () =&gt; {
+        const f = document.createElement(&quot;iframe&quot;);
+        f.src = &quot;https://www.youtube-nocookie.com/embed/&quot; + p.id + &quot;?autoplay=1&amp;rel=0&amp;playsinline=1&quot;;
+        f.title = v.title || &quot;Reels FIXONE&quot;; f.allow = &quot;autoplay; encrypted-media; picture-in-picture&quot;; f.allowFullscreen = true;
+        frame.replaceChildren(f);
+      });
+      frame.appendChild(btn); card.appendChild(frame);
+    } else {
+      /* kompatibilitas data lama: file video atau link non-YouTube */
+      card.className = &quot;video-card&quot;;
+      if (p.kind === &quot;file&quot;) {
+        const vd = document.createElement(&quot;video&quot;);
+        vd.src = p.src; vd.controls = true; vd.preload = &quot;metadata&quot;; vd.playsInline = true;
+        const box = document.createElement(&quot;div&quot;); box.className = &quot;video-frame&quot;; box.appendChild(vd);
+        card.appendChild(box);
+      } else {
+        const a = document.createElement(&quot;a&quot;);
+        a.className = &quot;video-link&quot;; a.href = p.src; a.target = &quot;_blank&quot;; a.rel = &quot;noopener&quot;;
+        a.textContent = DYN[lang].watch + &quot; →&quot;;
+        card.appendChild(a);
+      }
+    }
+    if (v.title) { const t = document.createElement(&quot;p&quot;); t.className = &quot;video-title&quot;; t.textContent = v.title; card.appendChild(t); }
+    grid.appendChild(card);
+  });
+}
+
+function applyLang(next) {
+  lang = next;
+  document.documentElement.lang = next;
+  $$(&quot;[data-i18n]&quot;).forEach((el) =&gt; {
+    if (!el.dataset.id) el.dataset.id = el.textContent;
+    el.textContent = next === &quot;en&quot; ? (EN[el.dataset.i18n] ?? el.dataset.id) : el.dataset.id;
+  });
+  $$(&quot;[data-i18n-ph]&quot;).forEach((el) =&gt; {
+    if (!el.dataset.id) el.dataset.id = el.placeholder;
+    el.placeholder = next === &quot;en&quot; ? (EN[el.dataset.i18nPh] ?? el.dataset.id) : el.dataset.id;
+  });
+  $$(&quot;.lang button&quot;).forEach((b) =&gt; b.setAttribute(&quot;aria-pressed&quot;, String(b.dataset.lang === next)));
+  try { localStorage.setItem(&quot;fixone-lang&quot;, next); } catch (e) { /* abaikan */ }
+  refreshWaLinks();
+  renderPhotos(); renderStrip(); renderTags(); renderPricing(); renderFeed(); renderVideos(); renderTestimonials();
+}
+
+$$(&quot;.lang button&quot;).forEach((b) =&gt; b.addEventListener(&quot;click&quot;, () =&gt; applyLang(b.dataset.lang)));
+
+$(&quot;#wa-form&quot;).addEventListener(&quot;submit&quot;, (e) =&gt; {
+  e.preventDefault();
+  const f = e.target;
+  const name = f.name.value.trim();
+  const issue = f.issue.value.trim();
+  if (!name || !issue) {
+    alert(DYN[lang].missing);
+    (name ? f.issue : f.name).focus();
+    return;
+  }
+  window.open(waUrl(DYN[lang].form(name, f.device.value, issue)), &quot;_blank&quot;, &quot;noopener&quot;);
+});
+
+/* Reveal saat di-scroll (dilewati jika pengguna memilih mengurangi animasi) */
+function setupReveal() {
+  const items = $$(&quot;.reveal:not(.in)&quot;);
+  const reduce = window.matchMedia(&quot;(prefers-reduced-motion: reduce)&quot;).matches;
+  if (reduce || !(&quot;IntersectionObserver&quot; in window)) { items.forEach((i) =&gt; i.classList.add(&quot;in&quot;)); return; }
+  const io = new IntersectionObserver((entries) =&gt; {
+    entries.forEach((en) =&gt; { if (en.isIntersecting) { en.target.classList.add(&quot;in&quot;); io.unobserve(en.target); } });
+  }, { threshold: 0.12 });
+  items.forEach((i) =&gt; io.observe(i));
+}
+
+applyData(window.SITE_DATA);
+fillContact();
+let saved = null;
+try { saved = localStorage.getItem(&quot;fixone-lang&quot;); } catch (e) { /* abaikan */ }
+applyLang(saved === &quot;en&quot; ? &quot;en&quot; : &quot;id&quot;);
+setupReveal();
+
+/* Live preview: panel /admin mengirim data terbaru lewat postMessage */
+window.addEventListener(&quot;message&quot;, (e) =&gt; {
+  const m = e.data;
+  if (!m || m.type !== &quot;fixone-data&quot;) return;
+  if (e.origin !== location.origin &amp;&amp; location.origin !== &quot;null&quot;) return;
+  applyData(m.data);
+  fillContact();
+  applyLang(lang);
+  setupReveal();
+});
+
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+" title="Pratinjau situs"></iframe></div>
+    </section>
+  </main>
+
+  <!-- Draf & cadangan -->
+  <dialog id="dlg-history">
+    <div class="dlg">
+      <div class="dlg-top"><h2>Draf &amp; cadangan</h2><button type="button" class="x" data-close aria-label="Tutup">✕</button></div>
+      <p class="hint">Perubahanmu tersimpan otomatis di browser ini. Pakai cadangan untuk memindahkan ke perangkat lain atau berjaga-jaga bila data browser terhapus.</p>
+      <div class="row-actions">
+        <button type="button" class="btn" id="btn-export">Export cadangan (.json)</button>
+        <button type="button" class="btn" id="btn-import">Import cadangan</button>
+        <input type="file" id="file-import" accept="application/json,.json" hidden>
+      </div>
+      <div class="row-actions">
+        <button type="button" class="btn danger" id="btn-reset">Buang draf, kembali ke versi terpublikasi</button>
+      </div>
+      <div class="dlg-foot"><button type="button" class="btn" data-close>Tutup</button></div>
+    </div>
+  </dialog>
+
+  <!-- Publish -->
+  <dialog id="dlg-publish">
+    <div class="dlg" id="publish-form">
+      <div class="dlg-top"><h2>Publish ke GitHub</h2><button type="button" class="x" data-close aria-label="Tutup">✕</button></div>
+      <p class="hint">Semua perubahan dikirim sebagai <b>satu commit</b>. Vercel otomatis membangun ulang situs, biasanya siap dalam 1 sampai 2 menit.</p>
+      <div class="grid2">
+        <label>Pemilik repo (username/organisasi)<input id="gh-owner" autocomplete="off" placeholder="contoh: adam"></label>
+        <label>Nama repo<input id="gh-repo" autocomplete="off" placeholder="fixone-web"></label>
+      </div>
+      <div class="grid2">
+        <label>Branch<input id="gh-branch" value="main" autocomplete="off"></label>
+        <label>Token GitHub<input id="gh-token" type="password" autocomplete="off" placeholder="github_pat_…"></label>
+      </div>
+      <details class="how">
+        <summary>Cara membuat token</summary>
+        <ol>
+          <li>GitHub → Settings → Developer settings → Personal access tokens → <b>Fine-grained tokens</b> → Generate new token.</li>
+          <li>Repository access: pilih <b>hanya repo situs ini</b>.</li>
+          <li>Permissions → Repository permissions → <b>Contents: Read and write</b>.</li>
+          <li>Salin token ke kolom di atas. Token disimpan hanya di browser ini dan tidak ikut ke situs.</li>
+        </ol>
+      </details>
+      <label class="check"><input type="checkbox" id="gh-remember" checked> Ingat pengaturan ini di browser ini</label>
+      <pre class="log" id="publish-log" aria-live="polite" hidden></pre>
+      <div class="dlg-foot">
+        <button type="button" class="btn" data-close id="publish-close">Tutup</button>
+        <button type="button" class="btn primary" id="publish-go">Publish sekarang</button>
+      </div>
+    </div>
+  </dialog>
+
+
+  <!-- Generate HTML -->
+  <dialog id="dlg-gen">
+    <div class="dlg">
+      <div class="dlg-top"><h2>HTML siap digunakan</h2><button type="button" class="x" data-close aria-label="Tutup">✕</button></div>
+      <p class="hint">Satu file <b>index.html</b> mandiri yang sudah memuat semua perubahanmu di admin. Salin lalu tempel ke hosting mana pun (atau ganti <code>index.html</code> di repo), atau unduh filenya.</p>
+      <label class="check"><input type="checkbox" id="gen-media" checked> Sertakan foto &amp; video di dalam file <small>(file jadi lebih besar)</small></label>
+      <p class="hint" id="gen-info" aria-live="polite">Menyiapkan…</p>
+      <textarea id="gen-code" class="code" readonly rows="9" spellcheck="false" aria-label="Pratinjau kode HTML"></textarea>
+      <div class="dlg-foot">
+        <button type="button" class="btn" data-close>Tutup</button>
+        <button type="button" class="btn" id="gen-download">Download index.html</button>
+        <button type="button" class="btn primary" id="gen-copy">Salin kode HTML</button>
+      </div>
+    </div>
+  </dialog>
+
+<script>
+window.__FIXONE_TEMPLATE = {"html": "<!doctype html>\n<html lang=\"id\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>FIXONE | Servis iPhone, iPad, MacBook di Bali<\/title>\n  <meta name=\"description\" content=\"FIXONE, device care specialist di Bali. Servis independen iPhone, iPad, MacBook, dan Apple Watch dengan diagnosa jelas, estimasi sebelum dikerjakan, dan kartu serah terima tertulis.\">\n  <meta name=\"theme-color\" content=\"#2059A6\">\n  <meta property=\"og:type\" content=\"website\">\n  <meta property=\"og:title\" content=\"FIXONE | Your device, restored.\">\n  <meta property=\"og:description\" content=\"Servis independen iPhone, iPad, MacBook, dan Apple Watch di Bali. Dicek dulu, dijelaskan jelas, dikerjakan setelah kamu setuju.\">\n  <meta property=\"og:image\" content=\"assets/img/og.png\">\n  <link rel=\"icon\" href=\"assets/img/favicon.svg\" type=\"image/svg+xml\">\n\n  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n  <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n  <link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap\" rel=\"stylesheet\">\n  <link rel=\"stylesheet\" href=\"assets/css/style.css\">\n<\/head>\n<body>\n  <script>document.documentElement.classList.add(\"js\");<\/script>\n  <a class=\"skip\" href=\"#main\" data-i18n=\"skip\">Langsung ke konten<\/a>\n\n  <!-- Topbar kontak -->\n  <div class=\"topbar\">\n    <div class=\"wrap\">\n      <span data-contact-bar=\"address\"><\/span>\n      <span data-contact-bar=\"hours\"><\/span>\n      <a data-contact-bar=\"whatsapp\" data-wa href=\"#booking\"><\/a>\n    <\/div>\n  <\/div>\n\n  <header class=\"site-header\">\n    <div class=\"wrap\">\n      <a class=\"wm\" href=\"#top\" aria-label=\"FIXONE, ke atas halaman\">FI<span class=\"x\">X<\/span>ONE<\/a>\n      <nav class=\"nav\" aria-label=\"Menu utama\">\n        <a href=\"#layanan\" data-i18n=\"nav_services\">Layanan<\/a>\n        <a href=\"#cara-kerja\" data-i18n=\"nav_process\">Cara kerja<\/a>\n        <a href=\"#harga\" data-i18n=\"nav_price\">Daftar harga<\/a>\n        <a href=\"#kenapa\" data-i18n=\"nav_why\">Kenapa FIXONE<\/a>\n        <a href=\"#booking\" data-i18n=\"nav_contact\">Kontak<\/a>\n      <\/nav>\n      <div class=\"header-actions\">\n        <div class=\"lang\" role=\"group\" aria-label=\"Bahasa / Language\">\n          <button type=\"button\" data-lang=\"id\" aria-pressed=\"true\">ID<\/button>\n          <button type=\"button\" data-lang=\"en\" aria-pressed=\"false\">EN<\/button>\n        <\/div>\n        <a class=\"btn btn-blue btn-sm\" href=\"#booking\" data-i18n=\"nav_start\">Mulai perbaikan<\/a>\n      <\/div>\n    <\/div>\n  <\/header>\n\n  <main id=\"main\">\n    <!-- HERO -->\n    <section class=\"hero\" id=\"top\">\n      <div class=\"wrap\">\n        <div>\n          <p class=\"eyebrow\" data-i18n=\"hero_eyebrow\">Servis perangkat Apple \u00b7 Bali<\/p>\n          <h1>Your device, restored.<\/h1>\n          <p class=\"lead\" data-i18n=\"hero_lead\">Servis independen untuk iPhone, iPad, MacBook, dan Apple Watch. Dicek dulu, dijelaskan dengan jelas, baru dikerjakan setelah kamu setuju.<\/p>\n          <div class=\"hero-cta\">\n            <a class=\"btn btn-light\" href=\"#booking\"><span data-i18n=\"cta_start\">Mulai perbaikan<\/span> <span class=\"dot\" aria-hidden=\"true\"><\/span><\/a>\n            <a class=\"btn btn-ghost\" data-wa href=\"#booking\" data-i18n=\"cta_contact\">Hubungi kami<\/a>\n          <\/div>\n          <p class=\"promise\">Repair. Restore. Reconnect.<\/p>\n        <\/div>\n\n        <div class=\"hero-media reveal\">\n          <figure class=\"photo\" data-photo=\"hero\" data-label=\"Foto teknisi / bengkel FIXONE\" data-label-en=\"FIXONE technician / workshop photo\"><\/figure>\n          <div class=\"device\" aria-label=\"Contoh tampilan status perbaikan\">\n            <div class=\"device-screen\">\n              <p class=\"device-title\" data-i18n=\"dev_title\">Status perbaikan<\/p>\n              <p class=\"device-sub\" data-i18n=\"dev_sub\">Contoh kartu serah terima<\/p>\n              <div class=\"check\"><i aria-hidden=\"true\">\u2713<\/i><span><span data-i18n=\"dev_1\">Perangkat dicek<\/span><small data-i18n=\"dev_1s\">Diagnosa selesai<\/small><\/span><\/div>\n              <div class=\"check\"><i aria-hidden=\"true\">\u2713<\/i><span><span data-i18n=\"dev_2\">Estimasi disetujui<\/span><small data-i18n=\"dev_2s\">Sebelum pengerjaan<\/small><\/span><\/div>\n              <div class=\"check now\"><i aria-hidden=\"true\">\u25cf<\/i><span><span data-i18n=\"dev_3\">Sedang dikerjakan<\/span><small data-i18n=\"dev_3s\">Kabar lewat WhatsApp<\/small><\/span><\/div>\n            <\/div>\n          <\/div>\n        <\/div>\n      <\/div>\n    <\/section>\n\n    <!-- STRIP KREDIBILITAS -->\n    <section class=\"strip\" aria-label=\"Ringkasan layanan\">\n      <div class=\"wrap\" id=\"strip-items\"><\/div>\n    <\/section>\n\n    <!-- LAYANAN -->\n    <section class=\"services\" id=\"layanan\">\n      <div class=\"wrap\">\n        <div class=\"sec-head reveal\">\n          <p class=\"kicker\" data-i18n=\"svc_kicker\">Layanan<\/p>\n          <h2 data-i18n=\"svc_title\">Apa yang bisa kami kerjakan<\/h2>\n          <p data-i18n=\"svc_lead\">Pilih perangkatmu. Kalau gejalanya tidak ada di daftar, ceritakan saja.<\/p>\n        <\/div>\n\n        <div class=\"grid grid-5\">\n          <article class=\"card reveal\">\n            <svg class=\"ico\" viewBox=\"0 0 32 32\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"9\" y=\"3\" width=\"14\" height=\"26\" rx=\"3.5\"/><path d=\"M14 25h4\"/><\/svg>\n            <h3>iPhone<\/h3>\n            <ul>\n              <li data-i18n=\"svc_iphone_1\">Layar pecah atau tidak responsif<\/li>\n              <li data-i18n=\"svc_iphone_2\">Baterai cepat habis<\/li>\n              <li data-i18n=\"svc_iphone_3\">Port charging dan kamera<\/li>\n              <li data-i18n=\"svc_iphone_4\">Terkena air atau cairan<\/li>\n            <\/ul>\n          <\/article>\n          <article class=\"card reveal\">\n            <svg class=\"ico\" viewBox=\"0 0 32 32\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"6\" y=\"6\" width=\"20\" height=\"14\" rx=\"2\"/><path d=\"M3 24h26\"/><\/svg>\n            <h3>MacBook<\/h3>\n            <ul>\n              <li data-i18n=\"svc_mac_1\">Layar retak atau bergaris<\/li>\n              <li data-i18n=\"svc_mac_2\">Keyboard dan trackpad<\/li>\n              <li data-i18n=\"svc_mac_3\">Baterai menggembung<\/li>\n              <li data-i18n=\"svc_mac_4\">Mati total atau terkena cairan<\/li>\n            <\/ul>\n          <\/article>\n          <article class=\"card reveal\">\n            <svg class=\"ico\" viewBox=\"0 0 32 32\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"6\" y=\"4\" width=\"20\" height=\"24\" rx=\"3\"/><path d=\"M14.5 24h3\"/><\/svg>\n            <h3>iPad<\/h3>\n            <ul>\n              <li data-i18n=\"svc_ipad_1\">Layar dan sentuhan bermasalah<\/li>\n              <li data-i18n=\"svc_ipad_2\">Baterai tidak tahan lama<\/li>\n              <li data-i18n=\"svc_ipad_3\">Port charging<\/li>\n              <li data-i18n=\"svc_ipad_4\">Tidak mau menyala<\/li>\n            <\/ul>\n          <\/article>\n          <article class=\"card reveal\">\n            <svg class=\"ico\" viewBox=\"0 0 32 32\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"9\" y=\"9\" width=\"14\" height=\"14\" rx=\"4\"/><path d=\"M12 9l1-5h6l1 5M12 23l1 5h6l1-5\"/><\/svg>\n            <h3>Apple Watch<\/h3>\n            <ul>\n              <li data-i18n=\"svc_watch_1\">Layar retak<\/li>\n              <li data-i18n=\"svc_watch_2\">Baterai<\/li>\n              <li data-i18n=\"svc_watch_3\">Crown dan tombol samping<\/li>\n            <\/ul>\n          <\/article>\n          <article class=\"card reveal\">\n            <svg class=\"ico\" viewBox=\"0 0 32 32\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M11 5a4 4 0 0 1 4 4v9a3 3 0 0 1-6 0V9a4 4 0 0 1 2-4zM21 5a4 4 0 0 0-4 4v9a3 3 0 0 0 6 0V9a4 4 0 0 0-2-4z\"/><\/svg>\n            <h3 data-i18n=\"svc_acc_t\">Aksesori<\/h3>\n            <ul>\n              <li>AirPods<\/li>\n              <li>Apple Pencil<\/li>\n              <li data-i18n=\"svc_acc_1\">Charger dan kabel<\/li>\n            <\/ul>\n          <\/article>\n        <\/div>\n\n        <div class=\"symptoms reveal\">\n          <p class=\"symptoms-label\" data-i18n=\"sym_label\">Gejala yang sering datang. Klik, lalu kami siapkan pesannya.<\/p>\n          <div class=\"tags\" id=\"tags\"><\/div>\n        <\/div>\n      <\/div>\n    <\/section>\n\n    <!-- CARA KERJA -->\n    <section class=\"process\" id=\"cara-kerja\">\n      <div class=\"wrap\">\n        <div class=\"sec-head reveal\">\n          <p class=\"kicker\" data-i18n=\"proc_kicker\">Cara kerja<\/p>\n          <h2 data-i18n=\"proc_title\">Empat langkah, tanpa kejutan<\/h2>\n        <\/div>\n        <div class=\"steps steps-4\">\n          <div class=\"step reveal\">\n            <span class=\"num\">01<\/span>\n            <h3 data-i18n=\"proc_1t\">Konsultasi<\/h3>\n            <p data-i18n=\"proc_1p\">Ceritakan gejalanya lewat WhatsApp atau datang langsung. Foto atau video sangat membantu.<\/p>\n          <\/div>\n          <div class=\"step reveal\">\n            <span class=\"num\">02<\/span>\n            <h3 data-i18n=\"proc_2t\">Diagnosa dan estimasi<\/h3>\n            <p data-i18n=\"proc_2p\">Perangkat dicek, masalahnya dijelaskan, dan estimasi biaya disampaikan sebelum apa pun dibongkar.<\/p>\n          <\/div>\n          <div class=\"step reveal\">\n            <span class=\"num\">03<\/span>\n            <h3 data-i18n=\"proc_3t\">Perbaikan dan pengujian<\/h3>\n            <p data-i18n=\"proc_3p\">Dikerjakan setelah kamu setuju. Fungsi perangkat dites sebelum diserahkan kembali.<\/p>\n          <\/div>\n          <div class=\"step reveal\">\n            <span class=\"num\">04<\/span>\n            <h3 data-i18n=\"proc_4t\">Serah terima dan garansi<\/h3>\n            <p data-i18n=\"proc_4p\">Perangkat pulang bersama kartu serah terima yang memuat hasil cek dan detail garansi.<\/p>\n          <\/div>\n        <\/div>\n      <\/div>\n    <\/section>\n\n    <!-- DAFTAR HARGA -->\n    <section class=\"pricing\" id=\"harga\">\n      <div class=\"wrap\">\n        <div class=\"sec-head reveal\">\n          <p class=\"kicker\" data-i18n=\"price_kicker\">Daftar harga<\/p>\n          <h2 data-i18n=\"price_title\">Biaya yang disampaikan di awal<\/h2>\n          <p data-i18n=\"price_lead\">Harga final bergantung pada kondisi perangkat dan tipe. Kamu selalu dapat estimasi sebelum pengerjaan dimulai.<\/p>\n        <\/div>\n        <div class=\"price-tabs\" id=\"price-tabs\" role=\"tablist\" aria-label=\"Pilih perangkat\"><\/div>\n        <div class=\"price-table reveal\" id=\"price-table\" role=\"tabpanel\"><\/div>\n      <\/div>\n    <\/section>\n\n    <!-- FEED (muncul bila data diisi) -->\n    <section class=\"feed\" id=\"feed\" hidden>\n      <div class=\"wrap\">\n        <div class=\"sec-head reveal\">\n          <p class=\"kicker\" data-i18n=\"feed_kicker\">Feed<\/p>\n          <h2 data-i18n=\"feed_title\">Dari meja servis<\/h2>\n        <\/div>\n        <div class=\"feed-grid\" id=\"feed-grid\"><\/div>\n      <\/div>\n    <\/section>\n\n    <!-- VIDEO (muncul bila data diisi) -->\n    <section class=\"videos\" id=\"video\" hidden>\n      <div class=\"wrap\">\n        <div class=\"sec-head reveal\">\n          <p class=\"kicker\" data-i18n=\"video_kicker\">Reels<\/p>\n          <h2 data-i18n=\"video_title\">Lihat langsung prosesnya<\/h2>\n        <\/div>\n        <div class=\"video-grid\" id=\"video-grid\"><\/div>\n      <\/div>\n    <\/section>\n\n    <!-- TESTIMONI (muncul bila data diisi) -->\n    <section class=\"testi\" id=\"testimoni\" hidden>\n      <div class=\"wrap\">\n        <div class=\"sec-head reveal\">\n          <p class=\"kicker\" data-i18n=\"testi_kicker\">Kata pelanggan<\/p>\n          <h2 data-i18n=\"testi_title\">Cerita dari meja servis<\/h2>\n        <\/div>\n        <div class=\"grid\" id=\"testi-grid\"><\/div>\n      <\/div>\n    <\/section>\n\n    <!-- KENAPA -->\n    <section id=\"kenapa\">\n      <div class=\"wrap why\">\n        <figure class=\"photo photo-tall reveal\" data-photo=\"team\" data-label=\"Foto tim / meja kerja FIXONE\" data-label-en=\"FIXONE team / workbench photo\"><\/figure>\n        <div>\n          <div class=\"sec-head reveal\">\n            <p class=\"kicker\" data-i18n=\"why_kicker\">Kenapa FIXONE<\/p>\n            <h2 data-i18n=\"why_title\">Servis yang bisa kamu pahami<\/h2>\n          <\/div>\n          <div class=\"why-grid\">\n            <div class=\"why-item reveal\">\n              <h3 data-i18n=\"why_1t\">Harga transparan<\/h3>\n              <p data-i18n=\"why_1p\">Biaya disampaikan di awal dan disetujui dulu, jadi tidak ada angka yang tiba-tiba berubah di akhir.<\/p>\n            <\/div>\n            <div class=\"why-item reveal\">\n              <h3 data-i18n=\"why_2t\">Penjelasan bahasa biasa<\/h3>\n              <p data-i18n=\"why_2p\">Kamu tahu apa yang rusak dan kenapa, tanpa istilah teknis yang membingungkan.<\/p>\n            <\/div>\n            <div class=\"why-item reveal\">\n              <h3 data-i18n=\"why_3t\">Dukungan setelah servis<\/h3>\n              <p data-i18n=\"why_3p\">Ada masalah setelah perangkat pulang? Hubungi kami lewat nomor yang sama.<\/p>\n            <\/div>\n            <div class=\"why-item reveal\">\n              <h3 data-i18n=\"why_4t\">Independen, dan kami sebut terang-terangan<\/h3>\n              <p data-i18n=\"why_4p\">FIXONE adalah layanan servis independen dan tidak berafiliasi dengan Apple Inc. Itu kami sampaikan sejak awal supaya kamu bisa memutuskan dengan tenang.<\/p>\n            <\/div>\n          <\/div>\n        <\/div>\n      <\/div>\n    <\/section>\n\n    <!-- SERAH TERIMA -->\n    <section class=\"handover\" id=\"serah-terima\">\n      <div class=\"wrap\">\n        <div class=\"reveal\">\n          <div class=\"sec-head\">\n            <p class=\"kicker\" data-i18n=\"ho_kicker\">Kartu serah terima<\/p>\n            <h2 data-i18n=\"ho_title\">Pulang dengan catatan yang jelas<\/h2>\n            <p data-i18n=\"ho_p\">Setiap perangkat kembali bersama kartu yang memuat hasil pengecekan, status perbaikan, dan detail garansi.<\/p>\n          <\/div>\n        <\/div>\n        <div class=\"hcard reveal\" aria-label=\"Contoh kartu serah terima\">\n          <div class=\"hcard-top\">\n            <span class=\"wm\">FI<span class=\"x\">X<\/span>ONE<\/span>\n            <span class=\"tag\" data-i18n=\"ho_tag\">Contoh<\/span>\n          <\/div>\n          <div class=\"hrow\"><span data-i18n=\"ho_r1\">Perangkat dicek<\/span><span data-i18n=\"ho_r1v\">Layar, baterai, port, kamera<\/span><\/div>\n          <div class=\"hrow\"><span data-i18n=\"ho_r2\">Status perbaikan<\/span><span data-i18n=\"ho_r2v\">Selesai<\/span><\/div>\n          <div class=\"hrow\"><span data-i18n=\"ho_r3\">Detail garansi<\/span><span data-i18n=\"ho_r3v\">Tertera di kartu<\/span><\/div>\n          <p class=\"fine\" data-i18n=\"ho_fine\">Layanan servis independen. Tidak berafiliasi dengan Apple Inc.<\/p>\n        <\/div>\n      <\/div>\n    <\/section>\n\n    <!-- BOOKING + LOKASI -->\n    <section class=\"booking\" id=\"booking\">\n      <div class=\"wrap\">\n        <div class=\"reveal\">\n          <div class=\"sec-head\">\n            <p class=\"kicker\" data-i18n=\"bk_kicker\">Mulai perbaikan<\/p>\n            <h2 data-i18n=\"bk_title\">Ceritakan masalahnya, kami balas<\/h2>\n            <p data-i18n=\"bk_p\">Isi singkat di bawah. Pesannya terkirim lewat WhatsApp, jadi kamu bisa langsung lanjut ngobrol dan kirim foto.<\/p>\n          <\/div>\n\n          <form id=\"wa-form\" novalidate>\n            <label><span data-i18n=\"f_name\">Nama<\/span>\n              <input type=\"text\" name=\"name\" autocomplete=\"name\" required>\n            <\/label>\n            <label><span data-i18n=\"f_device\">Perangkat<\/span>\n              <select name=\"device\" required>\n                <option value=\"iPhone\">iPhone<\/option>\n                <option value=\"MacBook\">MacBook<\/option>\n                <option value=\"iPad\">iPad<\/option>\n                <option value=\"Apple Watch\">Apple Watch<\/option>\n                <option value=\"Aksesori\" data-i18n=\"f_acc\">Aksesori<\/option>\n                <option value=\"Lainnya\" data-i18n=\"f_other\">Lainnya<\/option>\n              <\/select>\n            <\/label>\n            <label><span data-i18n=\"f_issue\">Keluhan<\/span>\n              <textarea name=\"issue\" data-i18n-ph=\"f_issue_ph\" placeholder=\"Contoh: layar iPhone 13 pecah setelah jatuh, touch masih jalan.\" required><\/textarea>\n            <\/label>\n            <button class=\"btn btn-blue\" type=\"submit\"><span data-i18n=\"f_send\">Kirim lewat WhatsApp<\/span> <span class=\"dot\" aria-hidden=\"true\"><\/span><\/button>\n            <p class=\"form-note\" data-i18n=\"f_note\">Tombol ini membuka WhatsApp dengan pesan yang sudah terisi. Situs ini tidak menyimpan datamu.<\/p>\n          <\/form>\n        <\/div>\n\n        <aside class=\"reveal\" aria-label=\"Informasi kontak\">\n          <figure class=\"photo photo-wide\" data-photo=\"store\" data-label=\"Foto tampak depan lokasi FIXONE\" data-label-en=\"FIXONE storefront photo\"><\/figure>\n          <ul class=\"contact-list\">\n            <li data-contact=\"whatsapp\"><b>WhatsApp<\/b><a data-wa href=\"#booking\" data-wa-text>\u2014<\/a><\/li>\n            <li data-contact=\"address\"><b data-i18n=\"c_loc\">Lokasi<\/b><span data-fill=\"address\"><\/span><\/li>\n            <li data-contact=\"hours\"><b data-i18n=\"c_hours\">Jam buka<\/b><span data-fill=\"hours\"><\/span><\/li>\n            <li data-contact=\"email\"><b>Email<\/b><a data-fill-link=\"email\" href=\"#\"><\/a><\/li>\n            <li data-contact=\"instagram\"><b>Instagram<\/b><a data-fill-link=\"instagram\" href=\"#\"><\/a><\/li>\n          <\/ul>\n          <a class=\"btn btn-outline\" id=\"map-btn\" href=\"#\" target=\"_blank\" rel=\"noopener\" hidden data-i18n=\"c_map\">Buka di Google Maps<\/a>\n        <\/aside>\n      <\/div>\n    <\/section>\n  <\/main>\n\n  <footer class=\"site-footer\">\n    <div class=\"wrap\">\n      <div>\n        <span class=\"wm\">FI<span class=\"x\">X<\/span>ONE<\/span>\n        <p style=\"margin-top:10px\" data-i18n=\"ft_p\">Device care specialist untuk iPhone, iPad, MacBook, dan Apple Watch di Bali.<\/p>\n      <\/div>\n      <p class=\"legal\" data-i18n=\"ft_legal\">Layanan servis independen, tidak berafiliasi dengan Apple Inc. Apple, iPhone, iPad, MacBook, dan Apple Watch adalah merek dagang Apple Inc.<\/p>\n    <\/div>\n  <\/footer>\n\n  <a class=\"wa-float\" data-wa href=\"#booking\" aria-label=\"Chat WhatsApp FIXONE\">\n    <svg viewBox=\"0 0 32 32\" width=\"24\" height=\"24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M16 4a12 12 0 0 0-10.3 18.1L4 28l6.1-1.6A12 12 0 1 0 16 4z\"/><path d=\"M12 11.5c.4 3.6 3.4 6.8 7.3 8.1l1.9-1.7-2.6-1.6-1.2.8c-1.2-.6-2.2-1.6-2.8-2.8l.9-1.2-1.6-2.7z\" fill=\"currentColor\" stroke=\"none\"/><\/svg>\n    <span data-i18n=\"wa_short\">WhatsApp<\/span><span class=\"dot\" aria-hidden=\"true\"><\/span>\n  <\/a>\n\n  <script src=\"assets/js/content.js\"><\/script>\n  <script src=\"assets/data/site.js\"><\/script>\n  <script src=\"assets/js/main.js\"><\/script>\n<\/body>\n<\/html>\n", "css": "/* FIXONE \u2014 Device Care Specialist, Bali\n   Token warna dan font diambil dari brand identity (konsep FIXONE). */\n\n:root {\n  --blue: #2059a6;\n  --navy: #122844;\n  --white: #ffffff;\n  --red: #e44747;\n  --mist: #edf4fc;\n  --ink: #122844;\n  --muted: #55657a;\n  --line: rgba(18, 40, 68, 0.12);\n\n  --font-display: \"Space Grotesk\", system-ui, sans-serif;\n  --font-body: \"Inter\", system-ui, sans-serif;\n\n  --s1: 0.5rem;\n  --s2: 1rem;\n  --s3: 1.5rem;\n  --s4: 2.5rem;\n  --s5: 4rem;\n  --s6: 6rem;\n  --radius: 18px;\n  --max: 1120px;\n}\n\n*,\n*::before,\n*::after { box-sizing: border-box; }\n\nhtml { scroll-behavior: smooth; scroll-padding-top: 76px; }\n\nbody {\n  margin: 0;\n  font-family: var(--font-body);\n  font-size: 1rem;\n  line-height: 1.6;\n  color: var(--ink);\n  background: var(--white);\n  -webkit-font-smoothing: antialiased;\n}\n\n[hidden] { display: none !important; }\nimg, svg { max-width: 100%; display: block; }\na { color: inherit; }\n\n.wrap {\n  width: 100%;\n  max-width: var(--max);\n  margin-inline: auto;\n  padding-inline: 16px;\n}\n\n.skip {\n  position: absolute; left: -999px; top: 8px;\n  background: var(--white); color: var(--navy);\n  padding: 8px 14px; border-radius: 8px; z-index: 100;\n}\n.skip:focus { left: 8px; }\n\n/* ---------- Wordmark ---------- */\n.wm {\n  font-family: var(--font-display);\n  font-weight: 700;\n  letter-spacing: -0.02em;\n  line-height: 1;\n  text-decoration: none;\n  display: inline-block;\n}\n.wm .x { position: relative; display: inline-block; }\n.wm .x::after {\n  content: \"\";\n  position: absolute;\n  left: 50%;\n  top: -0.08em;\n  width: 0.13em;\n  height: 1.12em;\n  background: var(--red);\n  border-radius: 2px;\n  transform: translateX(-50%) rotate(28deg);\n}\n\n/* ---------- Header ---------- */\n.site-header {\n  position: sticky; top: 0; z-index: 50;\n  background: rgba(255, 255, 255, 0.94);\n  backdrop-filter: blur(10px);\n  border-bottom: 1px solid var(--line);\n}\n.site-header .wrap {\n  display: flex; align-items: center; justify-content: space-between;\n  height: 64px; gap: var(--s2);\n}\n.site-header .wm { font-size: 1.5rem; color: var(--blue); }\n\n.nav { display: none; gap: var(--s3); }\n.nav a {\n  text-decoration: none; font-weight: 500; font-size: 0.95rem; color: var(--navy);\n}\n.nav a:hover { color: var(--blue); }\n\n.header-actions { display: flex; align-items: center; gap: 10px; }\n\n.lang {\n  display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 2px;\n}\n.lang button {\n  font: 600 0.75rem var(--font-body);\n  border: 0; background: transparent; color: var(--muted);\n  padding: 5px 10px; border-radius: 999px; cursor: pointer;\n}\n.lang button[aria-pressed=\"true\"] { background: var(--navy); color: var(--white); }\n\n/* ---------- Buttons ---------- */\n.btn {\n  display: inline-flex; align-items: center; justify-content: center; gap: 10px;\n  font: 600 1rem var(--font-body);\n  text-decoration: none;\n  padding: 13px 22px;\n  border-radius: 999px;\n  border: 2px solid transparent;\n  cursor: pointer;\n  transition: transform 0.15s ease, background 0.15s ease;\n}\n.btn:active { transform: translateY(1px); }\n.btn-light { background: var(--white); color: var(--navy); }\n.btn-light:hover { background: var(--mist); }\n.btn-ghost { border-color: rgba(255, 255, 255, 0.55); color: var(--white); }\n.btn-ghost:hover { background: rgba(255, 255, 255, 0.1); }\n.btn-blue { background: var(--blue); color: var(--white); }\n.btn-blue:hover { background: var(--navy); }\n.btn-sm { padding: 8px 16px; font-size: 0.9rem; }\n.btn .dot {\n  width: 8px; height: 8px; border-radius: 50%; background: var(--red);\n}\n\n:focus-visible { outline: 3px solid var(--red); outline-offset: 3px; }\n\n/* ---------- Hero ---------- */\n.hero {\n  background: var(--blue);\n  color: var(--white);\n  position: relative;\n  overflow: hidden;\n  padding-block: var(--s5) var(--s5);\n}\n.hero::before {\n  /* goresan merah berskala besar sebagai ciri khas, sangat halus */\n  content: \"\";\n  position: absolute;\n  right: 12%; top: -20%;\n  width: 14px; height: 140%;\n  background: var(--red);\n  opacity: 0.9;\n  transform: rotate(28deg);\n  border-radius: 4px;\n}\n.hero .wrap { position: relative; display: grid; gap: var(--s4); }\n\n.eyebrow {\n  font: 600 0.78rem var(--font-body);\n  letter-spacing: 0.14em;\n  text-transform: uppercase;\n  color: rgba(255, 255, 255, 0.78);\n  margin: 0 0 var(--s2);\n}\n.hero h1 {\n  font-family: var(--font-display);\n  font-weight: 700;\n  font-size: clamp(2.4rem, 8vw + 0.5rem, 4.6rem);\n  line-height: 1.02;\n  letter-spacing: -0.03em;\n  margin: 0 0 var(--s3);\n  max-width: 14ch;\n}\n.hero .lead {\n  font-size: 1.1rem;\n  max-width: 46ch;\n  color: rgba(255, 255, 255, 0.92);\n  margin: 0 0 var(--s3);\n}\n.hero-cta { display: flex; flex-wrap: wrap; gap: 12px; }\n.promise {\n  margin: var(--s3) 0 0;\n  font: 600 0.85rem var(--font-display);\n  letter-spacing: 0.12em;\n  text-transform: uppercase;\n  color: rgba(255, 255, 255, 0.85);\n}\n\n/* kartu perangkat di hero */\n.device {\n  width: min(100%, 300px);\n  background: var(--navy);\n  border-radius: 34px;\n  padding: 12px;\n  box-shadow: 0 30px 60px rgba(8, 20, 38, 0.45);\n  position: relative;\n}\n.device-screen {\n  background: var(--mist);\n  color: var(--navy);\n  border-radius: 24px;\n  padding: 22px 18px 18px;\n}\n.device-notch {\n  width: 84px; height: 22px; border-radius: 99px; background: var(--navy);\n  margin: -8px auto 14px;\n}\n.device-title { font: 700 1.15rem var(--font-display); margin: 0 0 2px; }\n.device-sub { font-size: 0.82rem; color: var(--muted); margin: 0 0 14px; }\n.check {\n  display: flex; align-items: center; gap: 10px;\n  background: var(--white); border-radius: 12px; padding: 10px 12px;\n  font-size: 0.88rem; font-weight: 500; margin-bottom: 8px;\n}\n.check i {\n  flex: none; width: 20px; height: 20px; border-radius: 50%;\n  background: var(--blue); color: var(--white);\n  display: grid; place-items: center; font-style: normal; font-size: 0.7rem; font-weight: 700;\n}\n.check.now i { background: var(--white); border: 2px solid var(--red); color: var(--red); }\n.check small { display: block; color: var(--muted); font-weight: 400; font-size: 0.75rem; }\n\n/* ---------- Sections ---------- */\nsection { padding-block: var(--s5); }\n.sec-head { max-width: 640px; margin-bottom: var(--s4); }\n.kicker {\n  font: 600 0.78rem var(--font-body);\n  letter-spacing: 0.14em; text-transform: uppercase;\n  color: var(--blue);\n  margin: 0 0 10px;\n  display: flex; align-items: center; gap: 10px;\n}\n.kicker::before,\n.step .word::before {\n  content: \"\";\n  flex: none;\n  width: 4px; height: 16px;\n  background: var(--red);\n  border-radius: 2px;\n  transform: rotate(28deg);\n}\n.handover .kicker { color: rgba(255, 255, 255, 0.85); }\nh2 {\n  font-family: var(--font-display);\n  font-size: clamp(1.8rem, 4vw + 0.6rem, 2.8rem);\n  line-height: 1.1;\n  letter-spacing: -0.025em;\n  margin: 0 0 var(--s2);\n  color: var(--navy);\n}\n.sec-head p { color: var(--muted); margin: 0; font-size: 1.05rem; }\n\n/* ---------- Layanan ---------- */\n.services { background: var(--white); }\n.grid {\n  display: grid; gap: var(--s2);\n  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));\n}\n.card {\n  background: var(--white);\n  border: 1px solid var(--line);\n  border-radius: var(--radius);\n  padding: var(--s3);\n}\n.card h3 {\n  font: 700 1.25rem var(--font-display);\n  margin: 0 0 4px; color: var(--blue);\n}\n.card .for { color: var(--muted); font-size: 0.9rem; margin: 0 0 var(--s2); }\n.card ul { list-style: none; margin: 0; padding: 0; }\n.card li {\n  padding: 8px 0 8px 22px; position: relative;\n  border-top: 1px solid var(--line); font-size: 0.95rem;\n}\n.card li::before {\n  content: \"\"; position: absolute; left: 2px; top: 1.05em;\n  width: 8px; height: 2px; background: var(--blue); transform: rotate(28deg);\n}\n\n.callout {\n  margin-top: var(--s2);\n  background: var(--mist);\n  border-radius: var(--radius);\n  padding: var(--s3);\n  display: grid; gap: var(--s2); align-items: center;\n}\n.callout p { margin: 0; }\n.callout strong { font-family: var(--font-display); font-size: 1.15rem; }\n\n/* ---------- Cara kerja ---------- */\n.process { background: var(--mist); }\n.steps { display: grid; gap: var(--s2); counter-reset: step; }\n.step {\n  background: var(--white); border-radius: var(--radius); padding: var(--s3);\n  position: relative;\n}\n.step .word {\n  font: 700 0.8rem var(--font-display);\n  letter-spacing: 0.16em; text-transform: uppercase; color: var(--blue);\n  display: flex; align-items: center; gap: 10px;\n}\n.step h3 { font: 700 1.3rem var(--font-display); margin: 6px 0 8px; color: var(--navy); }\n.step p { margin: 0; color: var(--muted); }\n\n/* ---------- Kenapa ---------- */\n.why-grid { display: grid; gap: var(--s3); }\n.why-item { border-top: 3px solid var(--blue); padding-top: var(--s2); }\n.why-item h3 { font: 700 1.15rem var(--font-display); margin: 0 0 6px; color: var(--navy); }\n.why-item p { margin: 0; color: var(--muted); }\n\n/* ---------- Kartu serah terima ---------- */\n.handover { background: var(--navy); color: var(--white); }\n.handover h2 { color: var(--white); }\n.handover .sec-head p { color: rgba(255, 255, 255, 0.78); }\n.handover .wrap { display: grid; gap: var(--s4); align-items: center; }\n.hcard {\n  background: var(--white); color: var(--navy);\n  border-radius: var(--radius); padding: var(--s3);\n  max-width: 420px; width: 100%;\n}\n.hcard-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--s2); }\n.hcard-top .wm { font-size: 1.3rem; color: var(--blue); }\n.tag {\n  font: 600 0.72rem var(--font-body); letter-spacing: 0.08em; text-transform: uppercase;\n  background: var(--mist); color: var(--blue); padding: 4px 10px; border-radius: 99px;\n}\n.hrow { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 0.93rem; }\n.hrow span:first-child { color: var(--muted); }\n.hrow span:last-child { font-weight: 600; text-align: right; }\n.hcard .fine { font-size: 0.75rem; color: var(--muted); margin: var(--s2) 0 0; }\n\n/* ---------- Booking ---------- */\n.booking .wrap { display: grid; gap: var(--s4); }\nform { display: grid; gap: var(--s2); }\nlabel { font-weight: 600; font-size: 0.9rem; display: grid; gap: 6px; }\ninput, select, textarea {\n  font: 1rem var(--font-body);\n  color: var(--navy);\n  padding: 12px 14px;\n  border: 1.5px solid var(--line);\n  border-radius: 12px;\n  background: var(--white);\n  width: 100%;\n}\ninput:focus, select:focus, textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(32, 89, 166, 0.2); }\ntextarea { min-height: 110px; resize: vertical; }\n.form-note { font-size: 0.85rem; color: var(--muted); margin: 0; }\n\n.contact-list { list-style: none; margin: var(--s3) 0 0; padding: 0; display: grid; gap: 12px; }\n.contact-list li { display: grid; gap: 2px; }\n.contact-list b { font: 600 0.75rem var(--font-body); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }\n.contact-list a { color: var(--blue); font-weight: 600; }\n\n/* ---------- Footer ---------- */\n.site-footer { background: var(--navy); color: rgba(255, 255, 255, 0.8); padding-block: var(--s4); font-size: 0.9rem; }\n.site-footer .wrap { display: grid; gap: var(--s2); }\n.site-footer .wm { font-size: 1.6rem; color: var(--white); }\n.site-footer p { margin: 0; max-width: 62ch; }\n.site-footer .legal { font-size: 0.8rem; color: rgba(255, 255, 255, 0.6); }\n\n/* ---------- Tombol WhatsApp melayang ---------- */\n.wa-float {\n  position: fixed; right: 16px; bottom: 16px; z-index: 60;\n  background: var(--navy); color: var(--white);\n  text-decoration: none; font-weight: 600; font-size: 0.95rem;\n  padding: 12px 18px; border-radius: 999px;\n  box-shadow: 0 10px 28px rgba(18, 40, 68, 0.35);\n  display: inline-flex; align-items: center; gap: 10px;\n}\n.wa-float .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--red); }\n\n/* ---------- Reveal ---------- */\n.js .reveal { opacity: 0; transform: translateY(14px); transition: opacity 0.5s ease, transform 0.5s ease; }\n.js .reveal.in { opacity: 1; transform: none; }\n\n@media (prefers-reduced-motion: reduce) {\n  html { scroll-behavior: auto; }\n  .js .reveal { opacity: 1; transform: none; transition: none; }\n  .btn { transition: none; }\n}\n\n/* ---------- Tablet / desktop ---------- */\n@media (min-width: 760px) {\n  .wrap { padding-inline: 24px; }\n  section { padding-block: var(--s6); }\n  .hero { padding-block: var(--s6); }\n  .hero .wrap { grid-template-columns: 1.15fr 0.85fr; align-items: center; }\n  .steps { grid-template-columns: repeat(3, 1fr); }\n  .why-grid { grid-template-columns: repeat(2, 1fr); gap: var(--s4); }\n  .callout { grid-template-columns: 1fr auto; padding: var(--s4); }\n  .handover .wrap { grid-template-columns: 1fr 1fr; }\n  .booking .wrap { grid-template-columns: 1.1fr 0.9fr; gap: var(--s5); }\n  .site-footer .wrap { grid-template-columns: 1fr auto; align-items: end; }\n}\n\n\n/* ================= v2: kerangka referensi ================= */\n\n/* Topbar kontak */\n.topbar { background: var(--navy); color: rgba(255,255,255,.85); font-size: .8rem; }\n.topbar .wrap { display: flex; flex-wrap: wrap; gap: 4px 18px; padding-block: 8px; justify-content: space-between; }\n.topbar span:empty, .topbar a:empty { display: none; }\n.topbar a { text-decoration: none; font-weight: 600; color: var(--white); }\n\n/* Hero media: foto + kartu status */\n.hero-media { position: relative; justify-self: center; width: min(100%, 420px); }\n.hero-media .device { position: relative; margin: -56px 0 0 auto; width: 78%; }\n\n/* Bingkai foto: placeholder bila belum ada foto asli */\n.photo { margin: 0; border-radius: var(--radius); overflow: hidden; background: var(--mist); position: relative; aspect-ratio: 4 / 5; }\n.photo img { width: 100%; height: 100%; object-fit: cover; }\n.photo.ph {\n  display: grid; place-items: center; text-align: center; padding: var(--s3);\n  border: 2px dashed rgba(32,89,166,.35); color: var(--blue);\n  font: 600 .9rem var(--font-body);\n}\n.hero .photo.ph { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.5); color: var(--white); }\n.photo.ph span { max-width: 22ch; }\n.photo.ph small { display: block; margin-top: 6px; font-weight: 400; opacity: .8; }\n.photo-wide { aspect-ratio: 16 / 10; margin-bottom: var(--s3); }\n.photo-tall { aspect-ratio: 4 / 5; }\n\n/* Strip kredibilitas */\n.strip { background: var(--mist); padding-block: var(--s3); }\n.strip .wrap { display: grid; gap: var(--s2); }\n.strip-item { display: flex; align-items: baseline; gap: 12px; }\n.strip-item b { font: 700 1.5rem var(--font-display); color: var(--blue); letter-spacing: -.02em; }\n.strip-item span { color: var(--muted); font-size: .95rem; }\n.strip-item.promise-item { align-items: center; }\n.strip-item.promise-item::before { content: \"\"; flex: none; width: 4px; height: 20px; background: var(--red); border-radius: 2px; transform: rotate(28deg); }\n.strip-item.promise-item span { color: var(--navy); font-weight: 600; }\n\n/* Kartu layanan dengan ikon */\n.grid-5 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }\n.card .ico { width: 34px; height: 34px; color: var(--blue); margin-bottom: var(--s2); }\n.card h3 { margin-bottom: var(--s2); }\n\n/* Tag gejala */\n.symptoms { margin-top: var(--s4); }\n.symptoms-label { color: var(--muted); font-size: .95rem; margin: 0 0 var(--s2); }\n.tags { display: flex; flex-wrap: wrap; gap: 8px; }\n.tags button {\n  font: 500 .9rem var(--font-body); color: var(--navy);\n  background: var(--white); border: 1.5px solid var(--line); border-radius: 999px;\n  padding: 8px 14px; cursor: pointer; transition: border-color .15s, background .15s;\n}\n.tags button:hover { border-color: var(--blue); background: var(--mist); }\n\n/* Langkah (4) */\n.steps-4 .num { font: 700 2rem var(--font-display); color: var(--blue); letter-spacing: -.03em; display: block; line-height: 1; }\n.step .num + h3 { margin-top: 12px; }\n\n/* Daftar harga */\n.pricing { background: var(--white); }\n.price-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: var(--s3); }\n.price-tabs button {\n  font: 600 .95rem var(--font-body); padding: 10px 18px; border-radius: 999px;\n  border: 1.5px solid var(--line); background: var(--white); color: var(--navy); cursor: pointer;\n}\n.price-tabs button[aria-selected=\"true\"] { background: var(--blue); border-color: var(--blue); color: var(--white); }\n.price-table { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }\n.price-row {\n  display: flex; align-items: center; justify-content: space-between; gap: 12px;\n  padding: 14px var(--s3); border-top: 1px solid var(--line); text-decoration: none;\n}\n.price-row:first-child { border-top: 0; }\n.price-row:hover { background: var(--mist); }\n.price-row .nm { font-weight: 500; }\n.price-row .pr { font: 700 1rem var(--font-display); color: var(--blue); white-space: nowrap; }\n.price-row .pr.ask { color: var(--muted); font-weight: 600; font-family: var(--font-body); font-size: .9rem; }\n.price-note { color: var(--muted); font-size: .85rem; margin: var(--s2) 0 0; }\n\n/* Testimoni */\n.testi { background: var(--mist); }\n.quote { background: var(--white); border-radius: var(--radius); padding: var(--s3); margin: 0; }\n.quote p { margin: 0 0 var(--s2); }\n.quote footer { display: flex; align-items: center; gap: 12px; font-size: .9rem; }\n.quote img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }\n.quote b { display: block; }\n.quote span { color: var(--muted); }\n\n/* Kenapa FIXONE: foto di samping */\n.why { display: grid; gap: var(--s4); align-items: center; }\n\n.btn-outline { border-color: var(--blue); color: var(--blue); margin-top: var(--s3); }\n.btn-outline:hover { background: var(--mist); }\n\n@media (min-width: 760px) {\n  .strip .wrap { grid-template-columns: repeat(3, 1fr); }\n  .steps-4 { grid-template-columns: repeat(2, 1fr); }\n  .hero-media .device { position: absolute; right: -28px; bottom: -28px; margin: 0; width: 64%; }\n  .why { grid-template-columns: 0.8fr 1.2fr; gap: var(--s5); }\n  .why-grid { grid-template-columns: 1fr 1fr; }\n}\n@media (min-width: 1000px) {\n  .steps-4 { grid-template-columns: repeat(4, 1fr); }\n}\n\n/* perbaikan v2 */\n.hero .photo.ph { align-content: start; padding-top: var(--s4); }\n.price-note { padding: 0 var(--s3) var(--s2); margin: 0; }\n.price-table .price-note { padding-top: var(--s2); border-top: 1px solid var(--line); }\n@media (max-width: 759px) {\n  .hero-media .device { width: 92%; }\n}\n\n@media (max-width: 759px) {\n  .hero::before { right: 4%; top: 62%; height: 38%; }\n}\n\n/* ================= feed, video, tombol WhatsApp ================= */\n.feed-grid { display: grid; gap: 8px; grid-template-columns: repeat(2, 1fr); }\n.feed-item { position: relative; display: block; aspect-ratio: 1 / 1; border-radius: 14px; overflow: hidden; background: var(--mist); margin: 0; text-decoration: none; }\n.feed-item img { width: 100%; height: 100%; object-fit: cover; transition: transform .3s ease; }\na.feed-item:hover img { transform: scale(1.04); }\n.feed-item span { position: absolute; inset: auto 0 0 0; padding: 28px 12px 10px; color: var(--white); font-size: .85rem; line-height: 1.35; background: linear-gradient(transparent, rgba(18,40,68,.82)); }\n\n.videos { background: var(--mist); }\n.video-grid { display: grid; gap: var(--s3); grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }\n.video-card { background: var(--white); border-radius: var(--radius); overflow: hidden; }\n.video-frame { aspect-ratio: 16 / 9; background: var(--navy); }\n.video-frame iframe, .video-frame video { width: 100%; height: 100%; border: 0; display: block; }\n.video-title { margin: 0; padding: 14px var(--s2); font-weight: 600; }\n.video-link { display: block; padding: var(--s3) var(--s2) 0; font-weight: 600; color: var(--blue); }\n\n.wa-float { gap: 10px; }\n.wa-float::before {\n  content: \"\"; position: absolute; inset: 0; border-radius: inherit;\n  border: 2px solid var(--navy); animation: wa-pulse 2.4s ease-out infinite; pointer-events: none;\n}\n@keyframes wa-pulse { 0% { transform: scale(1); opacity: .55; } 100% { transform: scale(1.35, 1.7); opacity: 0; } }\n@media (prefers-reduced-motion: reduce) { .wa-float::before { animation: none; display: none; } }\n\n@media (min-width: 760px) {\n  .feed-grid { grid-template-columns: repeat(4, 1fr); gap: 12px; }\n}\n\n/* header: menu tampil mulai 960px agar wordmark dan tombol tidak berdesakan */\n.wm, .btn-sm, .nav a { white-space: nowrap; }\n@media (min-width: 960px) { .nav { display: flex; } }\n\n/* ================= feed berformat 4:5 / 16:9 + reels vertikal ================= */\n.feed-grid.r45 .feed-item { aspect-ratio: 4 / 5; }\n.feed-grid.r169 { grid-template-columns: 1fr; }\n.feed-grid.r169 .feed-item { aspect-ratio: 16 / 9; }\n@media (min-width: 560px) { .feed-grid.r169 { grid-template-columns: repeat(2, 1fr); } }\n@media (min-width: 960px) { .feed-grid.r169 { grid-template-columns: repeat(3, 1fr); } }\n\n.video-grid.reels {\n  display: flex; gap: 12px; overflow-x: auto; padding: 4px 2px 14px;\n  scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; scrollbar-width: thin;\n}\n.reel { flex: 0 0 min(64vw, 230px); scroll-snap-align: start; }\n.video-grid.reels .video-card { flex: 0 0 min(80vw, 300px); scroll-snap-align: start; align-self: flex-start; }\n.reel-frame { position: relative; aspect-ratio: 9 / 16; border-radius: 16px; overflow: hidden; background: var(--navy); }\n.reel-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }\n.reel-play { all: unset; cursor: pointer; position: absolute; inset: 0; display: block; }\n.reel-play:focus-visible { outline: 3px solid var(--red); outline-offset: -3px; border-radius: 16px; }\n.reel-play img { width: 100%; height: 100%; object-fit: cover; display: block; }\n.reel-icon { position: absolute; left: 50%; top: 50%; width: 58px; height: 58px; margin: -29px 0 0 -29px; border-radius: 50%; background: rgba(18, 40, 68, .85); }\n.reel-icon::after { content: \"\"; position: absolute; left: 23px; top: 18px; border-left: 17px solid #fff; border-top: 11px solid transparent; border-bottom: 11px solid transparent; }\n.reel .video-title { padding: 8px 2px 0; font-size: .9rem; }\n", "content": "/* FIXONE \u2014 data konten.\n   Semua hal yang harus diisi dengan data NYATA ada di file ini.\n   Bagian yang dikosongkan otomatis disembunyikan, jadi tidak ada angka atau\n   testimoni karangan yang tampil di situs. */\n\nconst CONFIG = {\n  // Nomor WhatsApp format internasional, tanpa \"+\" dan tanpa spasi. Contoh: 6281234567890\n  whatsapp: \"6282234561212\",\n  whatsappDisplay: \"+62 822-3456-1212\",\n\n  address: \"Bali\",     // alamat lengkap\n  mapsUrl: \"\",         // tautan Google Maps ke lokasi. Kosong = tombol peta tersembunyi\n  hours: \"\",           // contoh: \"Senin\u2013Sabtu, 09.00\u201318.00\"\n  instagram: \"\",       // username tanpa @\n  email: \"\",\n\n  // Foto nyata. Taruh file di assets/img/ lalu isi path-nya. Kosong = tampil bingkai penanda.\n  images: {\n    hero: \"\",          // foto teknisi/bengkel, rasio 4:5, minimal 900x1125\n    team: \"\",          // foto tim atau meja kerja, rasio 4:5\n    store: \"\"          // foto tampak depan lokasi, rasio 16:10\n  },\n\n  // Angka nyata untuk strip kredibilitas. Kosong = strip diganti tiga janji layanan.\n  // Contoh: [{ value: \"1.200+\", label: \"perangkat selesai\" }, { value: \"4,9\", label: \"rating Google\" }]\n  stats: []\n};\n\n/* Daftar harga. price: angka rupiah (mis. 450000) atau null untuk \"Tanya harga\".\n   Hapus satu perangkat dari objek ini bila tidak melayaninya. */\nconst PRICELIST = {\n  \"iPhone\": [\n    { name: \"Ganti layar\", price: null },\n    { name: \"Ganti baterai\", price: null },\n    { name: \"Perbaikan port charging\", price: null },\n    { name: \"Kamera, speaker, mikrofon\", price: null },\n    { name: \"Penanganan terkena cairan\", price: null }\n  ],\n  \"iPad\": [\n    { name: \"Ganti layar dan touch\", price: null },\n    { name: \"Ganti baterai\", price: null },\n    { name: \"Perbaikan port charging\", price: null }\n  ],\n  \"MacBook\": [\n    { name: \"Ganti layar\", price: null },\n    { name: \"Keyboard dan trackpad\", price: null },\n    { name: \"Ganti baterai\", price: null },\n    { name: \"Penanganan mati total / cairan\", price: null }\n  ],\n  \"Apple Watch\": [\n    { name: \"Ganti layar\", price: null },\n    { name: \"Ganti baterai\", price: null }\n  ]\n};\n\n/* Testimoni nyata. Kosong = bagian testimoni tersembunyi.\n   Contoh: { name: \"Made\", role: \"Fotografer\", quote: \"Teks asli dari pelanggan.\", photo: \"assets/img/made.jpg\" } */\nconst TESTIMONIALS = [];\n", "main": "/* FIXONE \u2014 main.js\n   Data (kontak, foto, harga, testimoni) ada di assets/js/content.js.\n   File ini hanya mengurus tampilan, bahasa, dan tautan WhatsApp. */\n\nconst EN = {\n  skip: \"Skip to content\",\n  nav_services: \"Services\", nav_process: \"How it works\", nav_price: \"Pricing\", nav_why: \"Why FIXONE\", nav_contact: \"Contact\",\n  nav_start: \"Start a repair\", wa_short: \"WhatsApp\",\n  hero_eyebrow: \"Apple device care \u00b7 Bali\",\n  hero_lead: \"Independent repair for iPhone, iPad, MacBook, and Apple Watch. Checked first, explained clearly, and only repaired once you say yes.\",\n  cta_start: \"Start a repair\", cta_contact: \"Contact us\",\n  dev_title: \"Repair status\", dev_sub: \"Sample handover card\",\n  dev_1: \"Device checked\", dev_1s: \"Diagnosis done\",\n  dev_2: \"Estimate approved\", dev_2s: \"Before any work starts\",\n  dev_3: \"In progress\", dev_3s: \"Updates on WhatsApp\",\n  svc_kicker: \"Services\", svc_title: \"What we repair\",\n  svc_lead: \"Pick your device. If your symptom isn't listed, just tell us.\",\n  svc_iphone_1: \"Cracked or unresponsive screen\", svc_iphone_2: \"Battery drains fast\",\n  svc_iphone_3: \"Charging port and camera\", svc_iphone_4: \"Water or liquid exposure\",\n  svc_mac_1: \"Cracked screen or display lines\", svc_mac_2: \"Keyboard and trackpad\",\n  svc_mac_3: \"Swollen battery\", svc_mac_4: \"Dead machine or liquid damage\",\n  svc_ipad_1: \"Screen and touch problems\", svc_ipad_2: \"Battery that doesn't last\",\n  svc_ipad_3: \"Charging port\", svc_ipad_4: \"Won't turn on\",\n  svc_watch_1: \"Cracked screen\", svc_watch_2: \"Battery\", svc_watch_3: \"Crown and side button\",\n  svc_acc_t: \"Accessories\", svc_acc_1: \"Chargers and cables\",\n  sym_label: \"Common symptoms. Tap one and we'll prepare the message.\",\n  proc_kicker: \"How it works\", proc_title: \"Four steps, no surprises\",\n  proc_1t: \"Consultation\", proc_1p: \"Tell us the symptoms on WhatsApp or drop by. A photo or video helps a lot.\",\n  proc_2t: \"Diagnosis and estimate\", proc_2p: \"Your device is checked, the problem is explained, and the cost estimate comes before anything is opened.\",\n  proc_3t: \"Repair and testing\", proc_3p: \"Work starts after you agree. Functions are tested before the device goes back to you.\",\n  proc_4t: \"Handover and warranty\", proc_4p: \"Your device returns with a handover card listing what was checked and the warranty details.\",\n  price_kicker: \"Pricing\", price_title: \"Costs shared upfront\",\n  price_lead: \"Final price depends on the device model and its condition. You always get an estimate before work begins.\",\n  feed_kicker: \"Feed\", feed_title: \"From the repair bench\",\n  video_kicker: \"Reels\", video_title: \"See the process up close\",\n  testi_kicker: \"Customer voices\", testi_title: \"Stories from the repair bench\",\n  why_kicker: \"Why FIXONE\", why_title: \"Repair you can actually follow\",\n  why_1t: \"Transparent pricing\", why_1p: \"Cost is shared upfront and approved first, so the number doesn't change at the end.\",\n  why_2t: \"Plain-language explanations\", why_2p: \"You know what's broken and why, without confusing jargon.\",\n  why_3t: \"Support after the repair\", why_3p: \"Something off after you get your device back? Reach us on the same number.\",\n  why_4t: \"Independent, and we say so\", why_4p: \"FIXONE is an independent repair service and is not affiliated with Apple Inc. We tell you upfront so you can decide with confidence.\",\n  ho_kicker: \"Handover card\", ho_title: \"Leave with a clear record\",\n  ho_p: \"Every device goes back with a card listing the checks done, the repair status, and the warranty details.\",\n  ho_tag: \"Sample\", ho_r1: \"Device checked\", ho_r1v: \"Screen, battery, port, camera\",\n  ho_r2: \"Repair status\", ho_r2v: \"Completed\", ho_r3: \"Warranty details\", ho_r3v: \"Listed on the card\",\n  ho_fine: \"Independent repair service. Not affiliated with Apple Inc.\",\n  bk_kicker: \"Start a repair\", bk_title: \"Tell us what's wrong, we'll reply\",\n  bk_p: \"Fill in the short form. It sends over WhatsApp, so you can carry on chatting and send photos right away.\",\n  f_name: \"Name\", f_device: \"Device\", f_other: \"Other\", f_acc: \"Accessory\", f_issue: \"Problem\",\n  f_issue_ph: \"Example: iPhone 13 screen cracked after a fall, touch still works.\",\n  f_send: \"Send via WhatsApp\",\n  f_note: \"This opens WhatsApp with the message pre-filled. This site doesn't store your data.\",\n  c_loc: \"Location\", c_hours: \"Opening hours\", c_map: \"Open in Google Maps\",\n  ft_p: \"Device care specialist for iPhone, iPad, MacBook, and Apple Watch in Bali.\",\n  ft_legal: \"Independent repair service, not affiliated with Apple Inc. Apple, iPhone, iPad, MacBook, and Apple Watch are trademarks of Apple Inc.\"\n};\n\n/* Teks dinamis (dibuat lewat JS, jadi tidak lewat atribut data-i18n) */\nconst DYN = {\n  id: {\n    hello: \"Halo FIXONE, saya mau tanya servis perangkat.\",\n    form: (n, d, i) => `Halo FIXONE, saya ${n}.\\nPerangkat: ${d}\\nKeluhan: ${i}`,\n    symptom: (s) => `Halo FIXONE, perangkat saya bermasalah: ${s}. Bisa dicek?`,\n    priceAsk: (d, n) => `Halo FIXONE, mau tanya estimasi biaya ${n} untuk ${d}.`,\n    missing: \"Isi nama dan keluhan dulu ya.\",\n    ask: \"Tanya harga\",\n    from: \"mulai dari \",\n    note: \"Harga bersifat estimasi awal. Biaya final dikonfirmasi setelah perangkat dicek.\",\n    ph: \"Foto belum diisi\",\n    watch: \"Tonton video\",\n    play: \"Putar reels\",\n    strip: [\"Estimasi sebelum pengerjaan\", \"Kabar progres lewat WhatsApp\", \"Kartu serah terima dan garansi\"]\n  },\n  en: {\n    hello: \"Hi FIXONE, I'd like to ask about a repair.\",\n    form: (n, d, i) => `Hi FIXONE, I'm ${n}.\\nDevice: ${d}\\nProblem: ${i}`,\n    symptom: (s) => `Hi FIXONE, my device has a problem: ${s}. Can you check it?`,\n    priceAsk: (d, n) => `Hi FIXONE, I'd like an estimate for ${n} on my ${d}.`,\n    missing: \"Please fill in your name and the problem first.\",\n    ask: \"Ask for price\",\n    from: \"from \",\n    note: \"Prices are initial estimates. The final cost is confirmed after the device is checked.\",\n    ph: \"Photo not added yet\",\n    watch: \"Watch video\",\n    play: \"Play reel\",\n    strip: [\"Estimate before any work\", \"Progress updates on WhatsApp\", \"Handover card and warranty\"]\n  }\n};\n\nconst SYMPTOMS = {\n  id: [\"Layar pecah\", \"Touch tidak responsif\", \"Baterai boros\", \"Tidak bisa charge\", \"Face ID error\", \"Kamera buram\", \"Kena air\", \"Mati total\", \"MacBook lemot\", \"Keyboard macet\"],\n  en: [\"Cracked screen\", \"Touch not responding\", \"Battery drains fast\", \"Won't charge\", \"Face ID error\", \"Blurry camera\", \"Water damage\", \"Won't turn on\", \"Slow MacBook\", \"Sticky keyboard\"]\n};\n\nconst PRICE_EN = {\n  \"Ganti layar\": \"Screen replacement\", \"Ganti baterai\": \"Battery replacement\",\n  \"Perbaikan port charging\": \"Charging port repair\", \"Kamera, speaker, mikrofon\": \"Camera, speaker, microphone\",\n  \"Penanganan terkena cairan\": \"Liquid damage treatment\", \"Ganti layar dan touch\": \"Screen and touch replacement\",\n  \"Keyboard dan trackpad\": \"Keyboard and trackpad\", \"Penanganan mati total / cairan\": \"Dead machine / liquid damage\"\n};\n\nlet lang = \"id\";\nlet activeDevice = Object.keys(PRICELIST)[0];\nconst MAX_FEED = 20;\nconst MAX_REELS = 10;\nlet FEED = [];\nlet VIDEOS = [];\nlet FEED_RATIO = \"4:5\";\n\n/* Data dari panel admin (assets/data/site.js) menimpa nilai bawaan content.js */\nfunction applyData(d) {\n  if (!d) return;\n  if (d.config) {\n    const { images, stats, ...rest } = d.config;\n    Object.assign(CONFIG, rest);\n    if (images) Object.assign(CONFIG.images, images);\n    if (Array.isArray(stats)) CONFIG.stats = stats;\n  }\n  if (d.pricelist) {\n    Object.keys(PRICELIST).forEach((k) => delete PRICELIST[k]);\n    Object.assign(PRICELIST, d.pricelist);\n  }\n  if (Array.isArray(d.testimonials)) { TESTIMONIALS.length = 0; TESTIMONIALS.push(...d.testimonials); }\n  FEED = Array.isArray(d.feed) ? d.feed : [];\n  VIDEOS = Array.isArray(d.videos) ? d.videos : [];\n  FEED_RATIO = d.feedRatio === \"16:9\" ? \"16:9\" : \"4:5\";\n  if (!PRICELIST[activeDevice]) activeDevice = Object.keys(PRICELIST)[0];\n}\n\nconst $ = (s, r = document) => r.querySelector(s);\nconst $$ = (s, r = document) => [...r.querySelectorAll(s)];\nconst waUrl = (text) => `https://api.whatsapp.com/send?phone=${CONFIG.whatsapp}&text=${encodeURIComponent(text)}`;\n\nfunction refreshWaLinks() {\n  $$(\"[data-wa]\").forEach((a) => {\n    a.href = waUrl(DYN[lang].hello);\n    a.target = \"_blank\";\n    a.rel = \"noopener\";\n  });\n  $$(\"[data-wa-text]\").forEach((a) => { a.textContent = CONFIG.whatsappDisplay; });\n  const bar = $('[data-contact-bar=\"whatsapp\"]');\n  if (bar) bar.textContent = \"WhatsApp \" + CONFIG.whatsappDisplay;\n}\n\nfunction fillContact() {\n  const hide = (key, on) => { const li = $(`[data-contact=\"${key}\"]`); if (li) li.hidden = on; };\n  const text = (key, v) => {\n    hide(key, !v);\n    const el = $(`[data-contact=\"${key}\"] [data-fill]`);\n    if (el && v) el.textContent = v;\n  };\n  text(\"address\", CONFIG.address);\n  text(\"hours\", CONFIG.hours);\n\n  hide(\"instagram\", !CONFIG.instagram);\n  const ig = $('[data-fill-link=\"instagram\"]');\n  if (ig && CONFIG.instagram) { ig.textContent = \"@\" + CONFIG.instagram; ig.href = \"https://instagram.com/\" + CONFIG.instagram; ig.target = \"_blank\"; ig.rel = \"noopener\"; }\n\n  hide(\"email\", !CONFIG.email);\n  const em = $('[data-fill-link=\"email\"]');\n  if (em && CONFIG.email) { em.textContent = CONFIG.email; em.href = \"mailto:\" + CONFIG.email; }\n\n  const map = $(\"#map-btn\");\n  if (map) { map.hidden = !CONFIG.mapsUrl; if (CONFIG.mapsUrl) map.href = CONFIG.mapsUrl; }\n\n  const a = $('[data-contact-bar=\"address\"]'); if (a) a.textContent = CONFIG.address || \"\";\n  const h = $('[data-contact-bar=\"hours\"]'); if (h) h.textContent = CONFIG.hours || \"\";\n}\n\nfunction renderPhotos() {\n  $$(\"[data-photo]\").forEach((fig) => {\n    const src = CONFIG.images[fig.dataset.photo];\n    const label = lang === \"en\" ? fig.dataset.labelEn : fig.dataset.label;\n    fig.classList.toggle(\"ph\", !src);\n    fig.innerHTML = \"\";\n    if (src) {\n      const img = document.createElement(\"img\");\n      img.src = src; img.alt = label; img.loading = \"lazy\";\n      fig.appendChild(img);\n    } else {\n      const s = document.createElement(\"span\");\n      s.textContent = label;\n      const sm = document.createElement(\"small\");\n      sm.textContent = DYN[lang].ph;\n      s.appendChild(sm);\n      fig.appendChild(s);\n    }\n  });\n}\n\nfunction renderStrip() {\n  const box = $(\"#strip-items\");\n  box.innerHTML = \"\";\n  if (CONFIG.stats && CONFIG.stats.length) {\n    CONFIG.stats.forEach((s) => {\n      const d = document.createElement(\"div\"); d.className = \"strip-item\";\n      d.innerHTML = \"<b><\/b><span><\/span>\";\n      d.firstChild.textContent = s.value; d.lastChild.textContent = s.label;\n      box.appendChild(d);\n    });\n  } else {\n    DYN[lang].strip.forEach((t) => {\n      const d = document.createElement(\"div\"); d.className = \"strip-item promise-item\";\n      const s = document.createElement(\"span\"); s.textContent = t;\n      d.appendChild(s); box.appendChild(d);\n    });\n  }\n}\n\nfunction renderTags() {\n  const box = $(\"#tags\");\n  box.innerHTML = \"\";\n  SYMPTOMS[lang].forEach((s) => {\n    const b = document.createElement(\"button\");\n    b.type = \"button\"; b.textContent = s;\n    b.addEventListener(\"click\", () => window.open(waUrl(DYN[lang].symptom(s)), \"_blank\", \"noopener\"));\n    box.appendChild(b);\n  });\n}\n\nconst rupiah = (n) => \"Rp \" + new Intl.NumberFormat(\"id-ID\").format(n);\n\nfunction renderPricing() {\n  $(\"#harga\").hidden = !Object.keys(PRICELIST).length;\n  const tabs = $(\"#price-tabs\");\n  const table = $(\"#price-table\");\n  tabs.innerHTML = \"\";\n  Object.keys(PRICELIST).forEach((dev) => {\n    const b = document.createElement(\"button\");\n    b.type = \"button\"; b.setAttribute(\"role\", \"tab\");\n    b.setAttribute(\"aria-selected\", String(dev === activeDevice));\n    b.textContent = dev;\n    b.addEventListener(\"click\", () => { activeDevice = dev; renderPricing(); });\n    tabs.appendChild(b);\n  });\n  table.innerHTML = \"\";\n  (PRICELIST[activeDevice] || []).forEach((row) => {\n    const name = lang === \"en\" ? (PRICE_EN[row.name] || row.name) : row.name;\n    const a = document.createElement(\"a\");\n    a.className = \"price-row\"; a.target = \"_blank\"; a.rel = \"noopener\";\n    a.href = waUrl(DYN[lang].priceAsk(activeDevice, name));\n    const nm = document.createElement(\"span\"); nm.className = \"nm\"; nm.textContent = name;\n    const pr = document.createElement(\"span\"); pr.className = \"pr\";\n    if (typeof row.price === \"number\") pr.textContent = DYN[lang].from + rupiah(row.price);\n    else { pr.textContent = DYN[lang].ask; pr.classList.add(\"ask\"); }\n    a.append(nm, pr);\n    table.appendChild(a);\n  });\n  const note = document.createElement(\"p\");\n  note.className = \"price-note\"; note.textContent = DYN[lang].note;\n  table.appendChild(note);\n}\n\nfunction renderTestimonials() {\n  const sec = $(\"#testimoni\");\n  if (!TESTIMONIALS.length) { sec.hidden = true; return; }\n  sec.hidden = false;\n  const grid = $(\"#testi-grid\");\n  grid.innerHTML = \"\";\n  TESTIMONIALS.forEach((t) => {\n    const q = document.createElement(\"blockquote\"); q.className = \"quote\";\n    const p = document.createElement(\"p\"); p.textContent = t.quote;\n    const f = document.createElement(\"footer\");\n    if (t.photo) { const i = document.createElement(\"img\"); i.src = t.photo; i.alt = t.name; i.loading = \"lazy\"; f.appendChild(i); }\n    const w = document.createElement(\"div\");\n    const b = document.createElement(\"b\"); b.textContent = t.name;\n    const r = document.createElement(\"span\"); r.textContent = t.role || \"\";\n    w.append(b, r); f.appendChild(w);\n    q.append(p, f); grid.appendChild(q);\n  });\n}\n\nfunction renderFeed() {\n  const sec = $(\"#feed\");\n  const items = FEED.filter((f) => f && f.src).slice(0, MAX_FEED);\n  sec.hidden = !items.length;\n  const grid = $(\"#feed-grid\");\n  grid.className = \"feed-grid \" + (FEED_RATIO === \"16:9\" ? \"r169\" : \"r45\");\n  grid.innerHTML = \"\";\n  items.forEach((f) => {\n    const wrap = document.createElement(f.link ? \"a\" : \"figure\");\n    wrap.className = \"feed-item\";\n    if (f.link) { wrap.href = f.link; wrap.target = \"_blank\"; wrap.rel = \"noopener\"; }\n    const img = document.createElement(\"img\");\n    img.src = f.src; img.alt = f.caption || \"FIXONE\"; img.loading = \"lazy\";\n    img.style.objectPosition = \"center \" + (f.focus === \"top\" ? \"top\" : f.focus === \"bottom\" ? \"bottom\" : \"center\");\n    wrap.appendChild(img);\n    if (f.caption) { const c = document.createElement(\"span\"); c.textContent = f.caption; wrap.appendChild(c); }\n    grid.appendChild(wrap);\n  });\n}\n\nfunction parseVideo(url) {\n  const u = (url || \"\").trim();\n  const yt = u.match(/(?:youtu\\.be\\/|youtube\\.com\\/(?:watch\\?(?:.*&)?v=|shorts\\/|embed\\/))([\\w-]{11})/);\n  if (yt) return { kind: \"youtube\", id: yt[1] };\n  if (/^data:video\\//.test(u) || /\\.(mp4|webm|mov)(\\?|$)/i.test(u)) return { kind: \"file\", src: u };\n  return { kind: \"link\", src: u };\n}\n\nfunction renderVideos() {\n  const sec = $(\"#video\");\n  const items = VIDEOS.filter((v) => v && v.url).slice(0, MAX_REELS);\n  sec.hidden = !items.length;\n  const grid = $(\"#video-grid\");\n  grid.className = \"video-grid reels\";\n  grid.innerHTML = \"\";\n  items.forEach((v) => {\n    const card = document.createElement(\"div\");\n    const p = parseVideo(v.url);\n    if (p.kind === \"youtube\") {\n      /* reels vertikal 9:16: gambar sampul dulu, iframe baru dimuat saat diklik (hemat data) */\n      card.className = \"reel\";\n      const frame = document.createElement(\"div\"); frame.className = \"reel-frame\";\n      const btn = document.createElement(\"button\");\n      btn.type = \"button\"; btn.className = \"reel-play\";\n      btn.setAttribute(\"aria-label\", DYN[lang].play + (v.title ? \": \" + v.title : \"\"));\n      const img = document.createElement(\"img\");\n      img.src = \"https://i.ytimg.com/vi/\" + p.id + \"/hqdefault.jpg\"; img.alt = \"\"; img.loading = \"lazy\";\n      img.addEventListener(\"error\", () => img.remove());\n      const ic = document.createElement(\"span\"); ic.className = \"reel-icon\"; ic.setAttribute(\"aria-hidden\", \"true\");\n      btn.append(img, ic);\n      btn.addEventListener(\"click\", () => {\n        const f = document.createElement(\"iframe\");\n        f.src = \"https://www.youtube-nocookie.com/embed/\" + p.id + \"?autoplay=1&rel=0&playsinline=1\";\n        f.title = v.title || \"Reels FIXONE\"; f.allow = \"autoplay; encrypted-media; picture-in-picture\"; f.allowFullscreen = true;\n        frame.replaceChildren(f);\n      });\n      frame.appendChild(btn); card.appendChild(frame);\n    } else {\n      /* kompatibilitas data lama: file video atau link non-YouTube */\n      card.className = \"video-card\";\n      if (p.kind === \"file\") {\n        const vd = document.createElement(\"video\");\n        vd.src = p.src; vd.controls = true; vd.preload = \"metadata\"; vd.playsInline = true;\n        const box = document.createElement(\"div\"); box.className = \"video-frame\"; box.appendChild(vd);\n        card.appendChild(box);\n      } else {\n        const a = document.createElement(\"a\");\n        a.className = \"video-link\"; a.href = p.src; a.target = \"_blank\"; a.rel = \"noopener\";\n        a.textContent = DYN[lang].watch + \" \u2192\";\n        card.appendChild(a);\n      }\n    }\n    if (v.title) { const t = document.createElement(\"p\"); t.className = \"video-title\"; t.textContent = v.title; card.appendChild(t); }\n    grid.appendChild(card);\n  });\n}\n\nfunction applyLang(next) {\n  lang = next;\n  document.documentElement.lang = next;\n  $$(\"[data-i18n]\").forEach((el) => {\n    if (!el.dataset.id) el.dataset.id = el.textContent;\n    el.textContent = next === \"en\" ? (EN[el.dataset.i18n] ?? el.dataset.id) : el.dataset.id;\n  });\n  $$(\"[data-i18n-ph]\").forEach((el) => {\n    if (!el.dataset.id) el.dataset.id = el.placeholder;\n    el.placeholder = next === \"en\" ? (EN[el.dataset.i18nPh] ?? el.dataset.id) : el.dataset.id;\n  });\n  $$(\".lang button\").forEach((b) => b.setAttribute(\"aria-pressed\", String(b.dataset.lang === next)));\n  try { localStorage.setItem(\"fixone-lang\", next); } catch (e) { /* abaikan */ }\n  refreshWaLinks();\n  renderPhotos(); renderStrip(); renderTags(); renderPricing(); renderFeed(); renderVideos(); renderTestimonials();\n}\n\n$$(\".lang button\").forEach((b) => b.addEventListener(\"click\", () => applyLang(b.dataset.lang)));\n\n$(\"#wa-form\").addEventListener(\"submit\", (e) => {\n  e.preventDefault();\n  const f = e.target;\n  const name = f.name.value.trim();\n  const issue = f.issue.value.trim();\n  if (!name || !issue) {\n    alert(DYN[lang].missing);\n    (name ? f.issue : f.name).focus();\n    return;\n  }\n  window.open(waUrl(DYN[lang].form(name, f.device.value, issue)), \"_blank\", \"noopener\");\n});\n\n/* Reveal saat di-scroll (dilewati jika pengguna memilih mengurangi animasi) */\nfunction setupReveal() {\n  const items = $$(\".reveal:not(.in)\");\n  const reduce = window.matchMedia(\"(prefers-reduced-motion: reduce)\").matches;\n  if (reduce || !(\"IntersectionObserver\" in window)) { items.forEach((i) => i.classList.add(\"in\")); return; }\n  const io = new IntersectionObserver((entries) => {\n    entries.forEach((en) => { if (en.isIntersecting) { en.target.classList.add(\"in\"); io.unobserve(en.target); } });\n  }, { threshold: 0.12 });\n  items.forEach((i) => io.observe(i));\n}\n\napplyData(window.SITE_DATA);\nfillContact();\nlet saved = null;\ntry { saved = localStorage.getItem(\"fixone-lang\"); } catch (e) { /* abaikan */ }\napplyLang(saved === \"en\" ? \"en\" : \"id\");\nsetupReveal();\n\n/* Live preview: panel /admin mengirim data terbaru lewat postMessage */\nwindow.addEventListener(\"message\", (e) => {\n  const m = e.data;\n  if (!m || m.type !== \"fixone-data\") return;\n  if (e.origin !== location.origin && location.origin !== \"null\") return;\n  applyData(m.data);\n  fillContact();\n  applyLang(lang);\n  setupReveal();\n});\n", "fav": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\" role=\"img\" aria-label=\"FIXONE\">\n  <rect width=\"64\" height=\"64\" rx=\"14\" fill=\"#2059A6\"/>\n  <text x=\"26\" y=\"45\" text-anchor=\"middle\" font-family=\"Space Grotesk, Arial, sans-serif\" font-weight=\"700\" font-size=\"38\" fill=\"#ffffff\">F<\/text>\n  <rect x=\"38\" y=\"10\" width=\"6\" height=\"44\" rx=\"2\" fill=\"#E44747\" transform=\"rotate(28 41 32)\"/>\n<\/svg>\n"};
+/* FIXONE — data konten.
+   Semua hal yang harus diisi dengan data NYATA ada di file ini.
+   Bagian yang dikosongkan otomatis disembunyikan, jadi tidak ada angka atau
+   testimoni karangan yang tampil di situs. */
+
+const CONFIG = {
+  // Nomor WhatsApp format internasional, tanpa "+" dan tanpa spasi. Contoh: 6281234567890
+  whatsapp: "6282234561212",
+  whatsappDisplay: "+62 822-3456-1212",
+
+  address: "Bali",     // alamat lengkap
+  mapsUrl: "",         // tautan Google Maps ke lokasi. Kosong = tombol peta tersembunyi
+  hours: "",           // contoh: "Senin–Sabtu, 09.00–18.00"
+  instagram: "",       // username tanpa @
+  email: "",
+
+  // Foto nyata. Taruh file di assets/img/ lalu isi path-nya. Kosong = tampil bingkai penanda.
+  images: {
+    hero: "",          // foto teknisi/bengkel, rasio 4:5, minimal 900x1125
+    team: "",          // foto tim atau meja kerja, rasio 4:5
+    store: ""          // foto tampak depan lokasi, rasio 16:10
+  },
+
+  // Angka nyata untuk strip kredibilitas. Kosong = strip diganti tiga janji layanan.
+  // Contoh: [{ value: "1.200+", label: "perangkat selesai" }, { value: "4,9", label: "rating Google" }]
+  stats: []
+};
+
+/* Daftar harga. price: angka rupiah (mis. 450000) atau null untuk "Tanya harga".
+   Hapus satu perangkat dari objek ini bila tidak melayaninya. */
+const PRICELIST = {
+  "iPhone": [
+    { name: "Ganti layar", price: null },
+    { name: "Ganti baterai", price: null },
+    { name: "Perbaikan port charging", price: null },
+    { name: "Kamera, speaker, mikrofon", price: null },
+    { name: "Penanganan terkena cairan", price: null }
+  ],
+  "iPad": [
+    { name: "Ganti layar dan touch", price: null },
+    { name: "Ganti baterai", price: null },
+    { name: "Perbaikan port charging", price: null }
+  ],
+  "MacBook": [
+    { name: "Ganti layar", price: null },
+    { name: "Keyboard dan trackpad", price: null },
+    { name: "Ganti baterai", price: null },
+    { name: "Penanganan mati total / cairan", price: null }
+  ],
+  "Apple Watch": [
+    { name: "Ganti layar", price: null },
+    { name: "Ganti baterai", price: null }
+  ]
+};
+
+/* Testimoni nyata. Kosong = bagian testimoni tersembunyi.
+   Contoh: { name: "Made", role: "Fotografer", quote: "Teks asli dari pelanggan.", photo: "assets/img/made.jpg" } */
+const TESTIMONIALS = [];
+
+/* Diisi otomatis oleh panel /admin saat "Publish". Jangan edit manual kecuali perlu.
+   Bila kosong, situs memakai nilai bawaan di assets/js/content.js. */
+window.SITE_DATA = null;
+
+/* FIXONE Admin
+   - Edit konten (kontak, foto, feed, video, harga, testimoni, angka) dengan pratinjau langsung.
+   - Draf tersimpan otomatis di IndexedDB browser ini.
+   - Publish = satu commit ke GitHub (assets/data/site.js + file gambar/video), lalu Vercel deploy otomatis. */
+(() => {
+  "use strict";
+
+  /* ---------- util ---------- */
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const clone = (o) => JSON.parse(JSON.stringify(o));
+  const isData = (s) => typeof s === "string" && s.startsWith("data:");
+  const src2url = (s) => (!s ? "" : isData(s) || /^(https?:)?\/\//.test(s) || s.startsWith("/") ? s : "/" + s);
+
+  function h(tag, attrs, ...kids) {
+    const e = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (v == null || v === false) continue;
+      if (k === "class") e.className = v;
+      else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+      else if (k.startsWith(".")) e[k.slice(1)] = v;
+      else e.setAttribute(k, v === true ? "" : v);
+    }
+    kids.flat(Infinity).forEach((c) => {
+      if (c == null || c === false) return;
+      e.append(c.nodeType ? c : document.createTextNode(String(c)));
+    });
+    return e;
+  }
+
+  let toastT;
+  function toast(msg) {
+    $(".toast")?.remove();
+    const t = h("div", { class: "toast", role: "status" }, msg);
+    document.body.append(t);
+    clearTimeout(toastT);
+    toastT = setTimeout(() => t.remove(), 3200);
+  }
+
+  const MAX_FEED = 20;   // foto feed
+  const MAX_REELS = 10;  // reels YouTube Shorts
+  const ytId = (u) => {
+    const m = String(u || "").trim().match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/))([\w-]{11})/);
+    return m ? m[1] : null;
+  };
+
+  const waDigits = (v) => {
+    let d = String(v).replace(/\D/g, "");
+    if (d.startsWith("0")) d = "62" + d.slice(1);
+    return d;
+  };
+
+  /* ---------- state ---------- */
+  function baseState() {
+    return { config: clone(CONFIG), pricelist: clone(PRICELIST), testimonials: clone(TESTIMONIALS), feed: [], videos: [], feedRatio: "4:5" };
+  }
+  function overlay(st, d) {
+    if (!d) return st;
+    if (d.config) st.config = { ...st.config, ...d.config, images: { ...st.config.images, ...(d.config.images || {}) } };
+    if (d.pricelist) st.pricelist = d.pricelist;
+    if (Array.isArray(d.testimonials)) st.testimonials = d.testimonials;
+    if (Array.isArray(d.feed)) st.feed = d.feed;
+    if (Array.isArray(d.videos)) st.videos = d.videos;
+    if (d.feedRatio === "4:5" || d.feedRatio === "16:9") st.feedRatio = d.feedRatio;
+    if (!Array.isArray(st.config.stats)) st.config.stats = [];
+    return st;
+  }
+  const publishedState = () => overlay(baseState(), window.SITE_DATA);
+
+  let state = publishedState();
+  let dirty = false;
+
+  /* ---------- IndexedDB (draf) ---------- */
+  const idb = {
+    open() {
+      return new Promise((res, rej) => {
+        const r = indexedDB.open("fixone-admin", 1);
+        r.onupgradeneeded = () => r.result.createObjectStore("kv");
+        r.onsuccess = () => res(r.result);
+        r.onerror = () => rej(r.error);
+      });
+    },
+    async get(k) {
+      const db = await this.open();
+      return new Promise((res, rej) => {
+        const q = db.transaction("kv").objectStore("kv").get(k);
+        q.onsuccess = () => res(q.result);
+        q.onerror = () => rej(q.error);
+      });
+    },
+    async set(k, v) {
+      const db = await this.open();
+      return new Promise((res, rej) => {
+        const tx = db.transaction("kv", "readwrite");
+        tx.objectStore("kv").put(v, k);
+        tx.oncomplete = () => res();
+        tx.onerror = () => rej(tx.error);
+      });
+    },
+    async del(k) {
+      const db = await this.open();
+      return new Promise((res, rej) => {
+        const tx = db.transaction("kv", "readwrite");
+        tx.objectStore("kv").delete(k);
+        tx.oncomplete = () => res();
+        tx.onerror = () => rej(tx.error);
+      });
+    }
+  };
+
+  function setStatus(text, cls) {
+    const s = $("#status");
+    s.textContent = text;
+    s.className = "status" + (cls ? " " + cls : "");
+  }
+
+  let saveT, pushT;
+  async function saveDraft() {
+    try {
+      await idb.set("draft", { state, dirty, t: Date.now() });
+      if (dirty) setStatus("Draf tersimpan · belum dipublikasikan", "warn");
+    } catch (e) {
+      setStatus("Draf tidak tersimpan otomatis di sini. Pakai Generate HTML atau Export.", "warn");
+    }
+  }
+  function changed() {
+    dirty = true;
+    setStatus("Menyimpan draf…", "warn");
+    clearTimeout(pushT); pushT = setTimeout(pushPreview, 120);
+    clearTimeout(saveT); saveT = setTimeout(saveDraft, 500);
+  }
+  function pushPreview() {
+    const w = $("#preview").contentWindow;
+    if (w) w.postMessage({ type: "fixone-data", data: state }, "*");
+  }
+
+  /* ---------- gambar & video ---------- */
+  async function compressImage(file, max = 1600, quality = 0.82) {
+    if (!file.type.startsWith("image/")) throw new Error("File harus berupa gambar.");
+    let bmp;
+    try { bmp = await createImageBitmap(file); }
+    catch (e) { throw new Error("Format gambar tidak didukung browser. Pakai JPG, PNG, atau WebP."); }
+    const sc = Math.min(1, max / Math.max(bmp.width, bmp.height));
+    const c = document.createElement("canvas");
+    c.width = Math.round(bmp.width * sc);
+    c.height = Math.round(bmp.height * sc);
+    const x = c.getContext("2d");
+    x.fillStyle = "#fff";
+    x.fillRect(0, 0, c.width, c.height);
+    x.drawImage(bmp, 0, 0, c.width, c.height);
+    return c.toDataURL("image/jpeg", quality);
+  }
+  function readVideo(file) {
+    return new Promise((res, rej) => {
+      if (!/^video\/(mp4|webm)$/.test(file.type)) return rej(new Error("Video harus MP4 atau WebM."));
+      if (file.size > 25 * 1024 * 1024) return rej(new Error("Video maksimal 25 MB. Untuk file lebih besar, unggah ke YouTube lalu tempel link-nya."));
+      const r = new FileReader();
+      r.onload = () => res(r.result);
+      r.onerror = () => rej(new Error("Gagal membaca video."));
+      r.readAsDataURL(file);
+    });
+  }
+
+  /* ---------- komponen form ---------- */
+  function text(label, get, set, o = {}) {
+    const i = h(o.area ? "textarea" : "input", { type: o.area ? null : "text", placeholder: o.ph || "", ".value": get() || "", inputmode: o.mode });
+    i.addEventListener("input", () => { set(i.value); changed(); });
+    return h("label", {}, label, o.hint ? h("small", {}, o.hint) : null, i);
+  }
+
+  function picker(get, set, kind = "image", o = {}) {
+    const v = get();
+    const thumb = h("div", { class: "thumb" });
+    if (o.ratio === "4:5") thumb.style.cssText = "width:84px;height:auto;aspect-ratio:4/5";
+    if (o.ratio === "16:9") thumb.style.cssText = "width:128px;height:auto;aspect-ratio:16/9";
+    if (v && kind === "image") thumb.append(h("img", { src: src2url(v), alt: "" }));
+    else if (v && kind === "video" && (isData(v) || /\.(mp4|webm|mov)(\?|$)/i.test(v))) thumb.append(h("video", { src: src2url(v), muted: true, preload: "metadata" }));
+    else thumb.textContent = v ? "Link" : kind === "video" ? "Belum ada video" : "Belum ada foto";
+    const file = h("input", { type: "file", accept: kind === "video" ? "video/mp4,video/webm" : "image/*", hidden: true });
+    file.addEventListener("change", async () => {
+      const f = file.files[0];
+      if (!f) return;
+      try { set(kind === "video" ? await readVideo(f) : await compressImage(f, o.max || 1600, o.max ? 0.8 : 0.82)); changed(); renderEditor(); }
+      catch (e) { toast(e.message || "Gagal membaca file."); }
+    });
+    const url = h("input", {
+      type: "text",
+      placeholder: kind === "video" ? "atau tempel link (YouTube, TikTok, Instagram, .mp4)" : "atau tempel link gambar",
+      ".value": isData(v) ? "" : v || ""
+    });
+    url.addEventListener("input", () => { set(url.value.trim()); changed(); });
+    return h("div", { class: "pick" }, thumb,
+      h("div", { class: "pick-actions" },
+        h("button", { type: "button", class: "btn sm", onclick: () => file.click() }, kind === "video" ? "Unggah video" : "Pilih foto"),
+        v ? h("button", { type: "button", class: "btn sm danger", onclick: () => { set(""); changed(); renderEditor(); } }, "Hapus") : null,
+        url, file));
+  }
+
+  const mbtn = (label, onclick, disabled, cls) => h("button", { type: "button", class: cls || "", onclick, disabled: !!disabled, "aria-label": label === "↑" ? "Naik" : label === "↓" ? "Turun" : "Hapus" }, label);
+  function move(arr, i, d) { const j = i + d; if (j < 0 || j >= arr.length) return; [arr[i], arr[j]] = [arr[j], arr[i]]; changed(); renderEditor(); }
+
+  function listEditor(arr, label, blank, body, max = Infinity) {
+    const box = h("div", { style: "display:grid;gap:10px" });
+    arr.forEach((it, i) => {
+      box.append(h("div", { class: "item" },
+        h("div", { class: "item-head" }, h("b", {}, `${label} ${i + 1}`),
+          h("div", { class: "mini" },
+            mbtn("↑", () => move(arr, i, -1), i === 0),
+            mbtn("↓", () => move(arr, i, 1), i === arr.length - 1),
+            mbtn("✕", () => { arr.splice(i, 1); changed(); renderEditor(); }, false, "del"))),
+        ...body(it, i)));
+    });
+    const full = arr.length >= max;
+    box.append(h("button", { type: "button", class: "add", disabled: full, onclick: () => { if (arr.length >= max) return; arr.push(blank()); changed(); renderEditor(); } },
+      full ? `Batas ${max} ${label.toLowerCase()} tercapai` : `+ Tambah ${label.toLowerCase()}`));
+    return box;
+  }
+
+  /* ---------- feed: rasio, unggah banyak ---------- */
+  function ratioToggle() {
+    const opts = [["4:5", "4:5 · Tegak"], ["16:9", "16:9 · Lanskap"]];
+    return h("div", { class: "ratio" },
+      h("b", {}, "Format feed"),
+      h("div", { class: "seg", role: "group", "aria-label": "Format feed" },
+        opts.map(([v, l]) => h("button", { type: "button", "aria-pressed": String(state.feedRatio === v), onclick: () => { state.feedRatio = v; changed(); renderEditor(); } }, l))),
+      h("small", {}, "Berlaku untuk semua foto feed. Foto otomatis dipotong sesuai format."));
+  }
+
+  function focusSelect(it) {
+    const sel = h("select", {}, [["center", "Tengah"], ["top", "Atas"], ["bottom", "Bawah"]].map(([v, l]) => h("option", { value: v, selected: (it.focus || "center") === v }, l)));
+    sel.addEventListener("change", () => { it.focus = sel.value; changed(); });
+    return sel;
+  }
+
+  function bulkUpload() {
+    const left = MAX_FEED - state.feed.length;
+    const file = h("input", { type: "file", accept: "image/*", multiple: true, hidden: true });
+    file.addEventListener("change", async () => {
+      const picked = [...file.files];
+      const take = picked.slice(0, Math.max(0, MAX_FEED - state.feed.length));
+      const skipped = picked.length - take.length;
+      let ok = 0;
+      for (const f of take) {
+        try {
+          setStatus(`Memproses foto ${ok + 1}/${take.length}…`, "warn");
+          state.feed.push({ src: await compressImage(f, 1280, 0.8), caption: "", link: "", focus: "center" });
+          ok++;
+        } catch (e) { toast(e.message || "Gagal membaca foto."); }
+      }
+      file.value = "";
+      changed(); renderEditor();
+      toast(`${ok} foto ditambahkan` + (skipped > 0 ? `, ${skipped} dilewati (maksimal ${MAX_FEED})` : ""));
+    });
+    return h("div", { class: "bulk" },
+      h("button", { type: "button", class: "btn sm primary", disabled: left <= 0, onclick: () => file.click() },
+        left > 0 ? `Unggah banyak foto sekaligus (sisa ${left})` : `Batas ${MAX_FEED} foto tercapai`), file);
+  }
+
+  /* ---------- reels: link YouTube Shorts ---------- */
+  function reelRow(it) {
+    const thumb = h("div", { class: "thumb reel-thumb" });
+    const status = h("small", { class: "yt-status" });
+    const refresh = () => {
+      const id = ytId(it.url), short = /youtube\.com\/shorts\//.test(it.url || "");
+      thumb.innerHTML = "";
+      if (id) {
+        const img = h("img", { src: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`, alt: "", loading: "lazy" });
+        img.addEventListener("error", () => { thumb.textContent = "9:16"; });
+        thumb.append(img);
+      } else thumb.textContent = "9:16";
+      status.className = "yt-status " + (!it.url ? "" : id ? (short ? "ok" : "warn") : "bad");
+      status.textContent = !it.url ? "Tempel link YouTube Shorts di atas."
+        : id ? (short ? "✓ Link Shorts terdeteksi." : "Link YouTube biasa. Tetap dipakai, tapi paling pas berupa Shorts vertikal.")
+        : "✗ Bukan link YouTube yang valid.";
+    };
+    const url = h("input", { type: "text", placeholder: "https://youtube.com/shorts/…", ".value": it.url || "" });
+    url.addEventListener("input", () => { it.url = url.value.trim(); refresh(); changed(); });
+    refresh();
+    return h("div", { class: "reel-row" }, thumb,
+      h("div", { class: "reel-fields" }, h("label", {}, "Link YouTube Shorts", url), status, text("Judul (opsional)", () => it.title, (v) => (it.title = v))));
+  }
+
+  function reelsBulk() {
+    const left = MAX_REELS - state.videos.length;
+    const ta = h("textarea", { rows: 3, placeholder: "Tempel satu atau beberapa link, satu per baris", disabled: left <= 0, "aria-label": "Tempel link YouTube Shorts" });
+    const btn = h("button", { type: "button", class: "btn sm primary", disabled: left <= 0, onclick: () => {
+      const links = ta.value.split(/\s+/).map((x) => x.trim()).filter(Boolean);
+      const seen = new Set(state.videos.map((v) => ytId(v.url)).filter(Boolean));
+      const add = [];
+      let bad = 0, dup = 0;
+      links.forEach((u) => {
+        const id = ytId(u);
+        if (!id) { bad++; return; }
+        if (seen.has(id)) { dup++; return; }
+        seen.add(id); add.push(u);
+      });
+      const take = add.slice(0, Math.max(0, MAX_REELS - state.videos.length));
+      const over = add.length - take.length;
+      take.forEach((u) => state.videos.push({ title: "", url: u }));
+      const notes = [];
+      if (bad) notes.push(`${bad} bukan link YouTube`);
+      if (dup) notes.push(`${dup} sudah ada`);
+      if (over) notes.push(`${over} dilewati (maksimal ${MAX_REELS})`);
+      toast(`${take.length} reels ditambahkan` + (notes.length ? ": " + notes.join(", ") : ""));
+      if (take.length) { changed(); renderEditor(); }
+    } }, left > 0 ? `Tambahkan link (sisa ${left})` : `Batas ${MAX_REELS} reels tercapai`);
+    return h("div", { class: "bulk" }, ta, btn);
+  }
+
+  /* ---------- bagian editor ---------- */
+  const openSecs = new Set(["kontak"]);
+
+  function section(id, title, count, ...body) {
+    const d = h("details", { class: "sec", "data-sec": id, open: openSecs.has(id) },
+      h("summary", {}, title, count != null ? h("small", {}, count) : null),
+      h("div", { class: "sec-body" }, ...body));
+    d.addEventListener("toggle", () => { d.open ? openSecs.add(id) : openSecs.delete(id); });
+    return d;
+  }
+
+  function priceEditor() {
+    const pl = state.pricelist;
+    const box = h("div", { style: "display:grid;gap:10px" });
+    Object.keys(pl).forEach((dev, di, keys) => {
+      const rows = pl[dev];
+      const nameIn = h("input", { type: "text", ".value": dev, "aria-label": "Nama perangkat" });
+      nameIn.addEventListener("change", () => {
+        const nv = nameIn.value.trim();
+        if (!nv || (nv !== dev && pl[nv])) { nameIn.value = dev; return; }
+        const next = {};
+        Object.keys(pl).forEach((k) => { next[k === dev ? nv : k] = pl[k]; });
+        state.pricelist = next; changed(); renderEditor();
+      });
+      const reorder = (d) => {
+        const k = Object.keys(pl); const j = di + d;
+        if (j < 0 || j >= k.length) return;
+        [k[di], k[j]] = [k[j], k[di]];
+        const next = {}; k.forEach((x) => { next[x] = pl[x]; });
+        state.pricelist = next; changed(); renderEditor();
+      };
+      box.append(h("div", { class: "item" },
+        h("div", { class: "item-head" }, nameIn,
+          h("div", { class: "mini" },
+            mbtn("↑", () => reorder(-1), di === 0),
+            mbtn("↓", () => reorder(1), di === keys.length - 1),
+            mbtn("✕", () => { delete pl[dev]; changed(); renderEditor(); }, false, "del"))),
+        ...rows.map((r, ri) => {
+          const n = h("input", { type: "text", ".value": r.name || "", placeholder: "Nama layanan", "aria-label": "Nama layanan" });
+          n.addEventListener("input", () => { r.name = n.value; changed(); });
+          const p = h("input", { type: "text", inputmode: "numeric", ".value": typeof r.price === "number" ? String(r.price) : "", placeholder: "Tanya harga", "aria-label": "Harga dalam rupiah" });
+          p.addEventListener("input", () => { const d = p.value.replace(/\D/g, ""); r.price = d ? Number(d) : null; changed(); });
+          return h("div", { class: "price-row" }, n, p, mbtn("✕", () => { rows.splice(ri, 1); changed(); renderEditor(); }, false, "del"));
+        }),
+        h("button", { type: "button", class: "add", onclick: () => { rows.push({ name: "", price: null }); changed(); renderEditor(); } }, "+ Tambah layanan")));
+    });
+    box.append(h("button", { type: "button", class: "add", onclick: () => {
+      let n = "Perangkat baru", i = 2;
+      while (pl[n]) n = "Perangkat baru " + i++;
+      pl[n] = [{ name: "", price: null }]; changed(); renderEditor();
+    } }, "+ Tambah perangkat"));
+    return box;
+  }
+
+  function renderEditor() {
+    const ed = $("#editor");
+    const top = ed.scrollTop;
+    ed.innerHTML = "";
+    const c = state.config;
+    c.images = c.images || {};
+
+    ed.append(
+      section("kontak", "Kontak & WhatsApp", null,
+        text("Nomor WhatsApp", () => c.whatsappDisplay, (v) => { c.whatsappDisplay = v; c.whatsapp = waDigits(v); }, { hint: "Format bebas, mis. +62 822-3456-1212 atau 0822-3456-1212. Dipakai tombol melayang dan semua tombol WhatsApp." }),
+        text("Alamat", () => c.address, (v) => (c.address = v)),
+        text("Link Google Maps", () => c.mapsUrl, (v) => (c.mapsUrl = v), { hint: "Kosong = tombol peta tidak tampil." }),
+        text("Jam buka", () => c.hours, (v) => (c.hours = v), { ph: "Senin–Sabtu, 09.00–18.00" }),
+        text("Instagram", () => c.instagram, (v) => (c.instagram = v.replace(/^.*instagram\.com\//i, "").replace(/^@/, "").replace(/[/?].*$/, "")), { ph: "username tanpa @" }),
+        text("Email", () => c.email, (v) => (c.email = v))),
+
+      section("foto", "Foto utama", null,
+        h("p", { class: "hint" }, "Foto dikompres otomatis ke maksimal 1600 px supaya situs tetap cepat."),
+        h("label", {}, "Hero (foto teknisi / bengkel)", h("small", {}, "Rasio 4:5, tegak"), picker(() => c.images.hero, (v) => (c.images.hero = v))),
+        h("label", {}, "Tim / meja kerja", h("small", {}, "Rasio 4:5, tegak"), picker(() => c.images.team, (v) => (c.images.team = v))),
+        h("label", {}, "Tampak depan lokasi", h("small", {}, "Rasio 16:10, lanskap"), picker(() => c.images.store, (v) => (c.images.store = v)))),
+
+      section("feed", "Feed foto", `${state.feed.length}/${MAX_FEED}`,
+        h("p", { class: "hint" }, `Maksimal ${MAX_FEED} foto. Pilih format tampilan, lalu unggah sekaligus atau satu per satu. Link tujuan opsional (mis. postingan Instagram).`),
+        ratioToggle(),
+        bulkUpload(),
+        listEditor(state.feed, "Foto", () => ({ src: "", caption: "", link: "", focus: "center" }), (it) => [
+          picker(() => it.src, (v) => (it.src = v), "image", { ratio: state.feedRatio, max: 1280 }),
+          h("label", {}, "Fokus foto", h("small", {}, "Bagian yang dipertahankan saat foto dipotong"), focusSelect(it)),
+          text("Caption", () => it.caption, (v) => (it.caption = v)),
+          text("Link tujuan (opsional)", () => it.link, (v) => (it.link = v), { ph: "https://instagram.com/p/…" })
+        ], MAX_FEED)),
+
+      section("video", "Reels (YouTube Shorts)", `${state.videos.length}/${MAX_REELS}`,
+        h("p", { class: "hint" }, `Salin link dari YouTube Shorts lalu tempel di sini. Maksimal ${MAX_REELS} reels. Di situs tampil sebagai kartu vertikal 9:16 yang diputar saat diklik.`),
+        reelsBulk(),
+        listEditor(state.videos, "Reels", () => ({ title: "", url: "" }), (it) => [reelRow(it)], MAX_REELS)),
+
+      section("harga", "Daftar harga", `${Object.keys(state.pricelist).length} perangkat`,
+        h("p", { class: "hint" }, "Harga kosong = tampil “Tanya harga”. Isi angka tanpa titik, mis. 450000."),
+        priceEditor()),
+
+      section("testi", "Testimoni", `${state.testimonials.length}`,
+        h("p", { class: "hint" }, "Hanya isi testimoni asli dari pelanggan. Kosong = bagian ini tidak tampil di situs."),
+        listEditor(state.testimonials, "Testimoni", () => ({ name: "", role: "", quote: "", photo: "" }), (it) => [
+          text("Nama", () => it.name, (v) => (it.name = v)),
+          text("Profesi / keterangan", () => it.role, (v) => (it.role = v)),
+          text("Isi testimoni", () => it.quote, (v) => (it.quote = v), { area: true }),
+          h("label", {}, "Foto (opsional)", picker(() => it.photo, (v) => (it.photo = v)))
+        ])),
+
+      section("stats", "Angka kredibilitas", `${c.stats.length}`,
+        h("p", { class: "hint" }, "Contoh: 1.200+ / perangkat selesai. Hanya isi angka yang benar. Kosong = diganti tiga janji layanan."),
+        listEditor(c.stats, "Angka", () => ({ value: "", label: "" }), (it) => [
+          text("Angka", () => it.value, (v) => (it.value = v), { ph: "1.200+" }),
+          text("Keterangan", () => it.label, (v) => (it.label = v), { ph: "perangkat selesai" })
+        ]))
+    );
+    ed.scrollTop = top;
+  }
+
+  /* ---------- dialog: tutup lewat tombol X / Tutup, klik latar, atau Esc ---------- */
+  $$("dialog").forEach((d) => {
+    d.addEventListener("click", (e) => { if (e.target === d) d.close(); });
+    $$("[data-close]", d).forEach((b) => b.addEventListener("click", () => d.close()));
+  });
+
+  /* ---------- cadangan ---------- */
+  const dlgHistory = $("#dlg-history");
+  $("#btn-history").addEventListener("click", () => dlgHistory.showModal());
+  $("#btn-export").addEventListener("click", () => {
+    const blob = new Blob([JSON.stringify(state)], { type: "application/json" });
+    const a = h("a", { href: URL.createObjectURL(blob), download: `fixone-cadangan-${new Date().toISOString().slice(0, 10)}.json` });
+    document.body.append(a); a.click(); a.remove();
+  });
+  $("#btn-import").addEventListener("click", () => $("#file-import").click());
+  $("#file-import").addEventListener("change", async (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+    try {
+      const j = JSON.parse(await f.text());
+      if (!j || typeof j !== "object" || !j.config) throw new Error("bukan file cadangan FIXONE");
+      state = overlay(baseState(), j);
+      changed(); renderEditor(); toast("Cadangan dimuat.");
+      dlgHistory.close();
+    } catch (err) { toast("File tidak valid: " + err.message); }
+    e.target.value = "";
+  });
+  $("#btn-reset").addEventListener("click", async () => {
+    if (!confirm("Buang semua perubahan yang belum dipublikasikan?")) return;
+    try { await idb.del("draft"); } catch (e) { /* abaikan */ }
+    state = publishedState(); dirty = false;
+    renderEditor(); pushPreview();
+    setStatus("Versi terpublikasi", "ok");
+    dlgHistory.close();
+  });
+
+  /* ---------- publish ke GitHub ---------- */
+  const dlgPub = $("#dlg-publish");
+  const GH_KEY = "fixone-gh";
+  const EXT = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "video/mp4": "mp4", "video/webm": "webm" };
+
+  $("#btn-publish").addEventListener("click", () => {
+    try {
+      const g = JSON.parse(localStorage.getItem(GH_KEY) || "{}");
+      $("#gh-owner").value = g.owner || ""; $("#gh-repo").value = g.repo || "";
+      $("#gh-branch").value = g.branch || "main"; $("#gh-token").value = g.token || "";
+    } catch (e) { /* abaikan */ }
+    $("#publish-log").hidden = true; $("#publish-log").textContent = "";
+    dlgPub.showModal();
+  });
+
+  function hash(s) {
+    let x = 2166136261;
+    for (let i = 0; i < s.length; i += 7) { x ^= s.charCodeAt(i); x = Math.imul(x, 16777619); }
+    return (x >>> 0).toString(36) + s.length.toString(36);
+  }
+
+  async function gh(token, path, method = "GET", body) {
+    const r = await fetch("https://api.github.com" + path, {
+      method,
+      headers: { Authorization: "Bearer " + token, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28", ...(body ? { "Content-Type": "application/json" } : {}) },
+      body: body ? JSON.stringify(body) : undefined
+    });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) {
+      const e = new Error(j.message || "HTTP " + r.status);
+      e.status = r.status;
+      throw e;
+    }
+    return j;
+  }
+
+  function friendly(e) {
+    if (e.status === 401) return "Token ditolak (salah atau kedaluwarsa). Buat token baru.";
+    if (e.status === 403) return "Token tidak punya izin menulis, atau terkena batas akses. Pastikan Contents: Read and write.";
+    if (e.status === 404) return "Repo atau branch tidak ditemukan, atau token tidak punya akses ke repo ini. Cek nama pemilik, repo, dan branch.";
+    return e.message;
+  }
+
+  $("#gh-token").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); $("#publish-go").click(); } });
+
+  $("#publish-go").addEventListener("click", async () => {
+    const owner = $("#gh-owner").value.trim(), repo = $("#gh-repo").value.trim();
+    const branch = $("#gh-branch").value.trim() || "main", token = $("#gh-token").value.trim();
+    const log = $("#publish-log"), go = $("#publish-go");
+    const say = (m) => { log.hidden = false; log.textContent += m + "\n"; log.scrollTop = log.scrollHeight; };
+    log.textContent = "";
+    if (!owner || !repo || !token) { say("Isi pemilik repo, nama repo, dan token dulu."); return; }
+    try {
+      if ($("#gh-remember").checked) localStorage.setItem(GH_KEY, JSON.stringify({ owner, repo, branch, token }));
+      else localStorage.removeItem(GH_KEY);
+    } catch (e) { /* abaikan */ }
+
+    go.disabled = true;
+    try {
+      /* 1. siapkan file: data URL menjadi file di repo */
+      const files = [], seen = new Map();
+      const walk = (o) => {
+        if (Array.isArray(o)) return o.map(walk);
+        if (o && typeof o === "object") { const r = {}; for (const k in o) r[k] = walk(o[k]); return r; }
+        if (isData(o)) {
+          if (!seen.has(o)) {
+            const m = o.match(/^data:([^;,]+)[^,]*,(.*)$/s);
+            const ext = EXT[m[1]] || "bin";
+            const folder = m[1].startsWith("video/") ? "assets/video/uploads" : "assets/img/uploads";
+            const path = `${folder}/${hash(o)}.${ext}`;
+            seen.set(o, path);
+            files.push({ path, b64: m[2] });
+          }
+          return seen.get(o);
+        }
+        return o;
+      };
+      const out = walk(clone(state));
+      const siteJs = `/* Diisi otomatis oleh panel /admin saat "Publish". */\nwindow.SITE_DATA = ${JSON.stringify(out, null, 2)};\n`;
+      say(`Menyiapkan ${files.length} file media + data situs…`);
+
+      /* 2. satu commit lewat Git Data API */
+      const base = `/repos/${owner}/${repo}`;
+      const ref = await gh(token, `${base}/git/ref/heads/${encodeURIComponent(branch)}`);
+      const parent = ref.object.sha;
+      const parentCommit = await gh(token, `${base}/git/commits/${parent}`);
+      const tree = [];
+      for (let i = 0; i < files.length; i++) {
+        say(`Mengunggah media ${i + 1}/${files.length}…`);
+        const b = await gh(token, `${base}/git/blobs`, "POST", { content: files[i].b64, encoding: "base64" });
+        tree.push({ path: files[i].path, mode: "100644", type: "blob", sha: b.sha });
+      }
+      const sj = await gh(token, `${base}/git/blobs`, "POST", { content: siteJs, encoding: "utf-8" });
+      tree.push({ path: "assets/data/site.js", mode: "100644", type: "blob", sha: sj.sha });
+      say("Membuat commit…");
+      const newTree = await gh(token, `${base}/git/trees`, "POST", { base_tree: parentCommit.tree.sha, tree });
+      const commit = await gh(token, `${base}/git/commits`, "POST", { message: "content: update dari panel admin FIXONE", tree: newTree.sha, parents: [parent] });
+      await gh(token, `${base}/git/refs/heads/${encodeURIComponent(branch)}`, "PATCH", { sha: commit.sha });
+
+      say("Berhasil. Vercel sedang membangun ulang situs (sekitar 1–2 menit).");
+      /* state sengaja tidak diganti dengan path hasil upload: gambar lokal tetap tampil di pratinjau
+         sampai Vercel selesai deploy. File yang sama (hash sama) tidak menambah perubahan di commit berikutnya. */
+      dirty = false;
+      try { await idb.set("draft", { state, dirty: false, t: Date.now() }); } catch (e) { /* abaikan */ }
+      setStatus("Dipublikasikan · menunggu Vercel", "ok");
+    } catch (e) {
+      say("Gagal: " + friendly(e));
+    } finally {
+      go.disabled = false;
+    }
+  });
+
+  /* ---------- generate HTML mandiri ---------- */
+  async function getTemplate() {
+    if (window.__FIXONE_TEMPLATE) return window.__FIXONE_TEMPLATE;
+    const get = async (p) => {
+      const r = await fetch(p, { cache: "no-store" });
+      if (!r.ok) throw new Error(`${p} tidak bisa dibaca (${r.status})`);
+      return r.text();
+    };
+    const [html, css, content, main, fav] = await Promise.all([
+      get("/index.html"), get("/assets/css/style.css"), get("/assets/js/content.js"), get("/assets/js/main.js"), get("/assets/img/favicon.svg")
+    ]);
+    return { html, css, content, main, fav };
+  }
+
+  function mapStrings(o, fn) {
+    if (Array.isArray(o)) return o.map((x) => mapStrings(x, fn));
+    if (o && typeof o === "object") { const r = {}; for (const k in o) r[k] = mapStrings(o[k], fn); return r; }
+    return typeof o === "string" ? fn(o) : o;
+  }
+
+  /* Catatan: pakai fungsi sebagai pengganti di replace() supaya "$" di dalam CSS/JS tidak ditafsirkan khusus. */
+  function buildHtml(t, data) {
+    const json = JSON.stringify(data, null, 2).replace(/<\//g, "<\\/");
+    const fav = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(t.fav)));
+    let h = t.html;
+    h = h.replace(/<link rel="stylesheet" href="assets\/css\/style\.css">/, () => "<style>\n" + t.css + "\n</style>");
+    h = h.replace(/\s*<script src="assets\/js\/content\.js"><\/script>\s*<script src="assets\/data\/site\.js"><\/script>\s*<script src="assets\/js\/main\.js"><\/script>/,
+      () => "\n<script>\n" + t.content + "\nwindow.SITE_DATA = " + json + ";\n" + t.main + "\n<\/script>");
+    h = h.replace('href="assets/img/favicon.svg"', () => 'href="' + fav + '"');
+    h = h.replace(/\s*<meta property="og:image"[^>]*>/, "");
+    h = h.replace("<!doctype html>", () => "<!doctype html>\n<!-- Dibuat dari admin FIXONE, " + new Date().toLocaleString("id-ID") + " -->");
+    return h;
+  }
+
+  const fmtSize = (n) => (n > 1048576 ? (n / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(n / 1024)) + " KB");
+  let genHtml = "";
+
+  async function generate() {
+    const info = $("#gen-info"), code = $("#gen-code");
+    info.textContent = "Menyiapkan…";
+    try {
+      const withMedia = $("#gen-media").checked;
+      const data = withMedia ? clone(state) : mapStrings(clone(state), (v) => (isData(v) ? "" : v));
+      genHtml = buildHtml(await getTemplate(), data);
+      const bytes = new Blob([genHtml]).size;
+      code.value = genHtml.length > 4000 ? genHtml.slice(0, 4000) + "\n\n… (pratinjau dipotong, tombol Salin menyalin seluruh kode)" : genHtml;
+      info.textContent = `Ukuran file: ${fmtSize(bytes)}.` + (bytes > 3 * 1048576 ? " Cukup besar karena memuat foto/video. Untuk hosting biasa tidak masalah; kalau terlalu berat untuk ditempel, matikan opsi di atas atau pakai Publish." : "");
+    } catch (e) {
+      genHtml = "";
+      code.value = "";
+      info.textContent = "Gagal membuat HTML: " + e.message;
+    }
+  }
+
+  $("#btn-gen").addEventListener("click", () => { $("#dlg-gen").showModal(); generate(); });
+  $("#gen-media").addEventListener("change", generate);
+
+  async function copyText(txt) {
+    try { await navigator.clipboard.writeText(txt); return true; } catch (e) { /* lanjut ke cadangan */ }
+    const ta = h("textarea", { style: "position:fixed;left:-9999px;top:0", ".value": txt });
+    document.body.append(ta); ta.select();
+    let ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { /* abaikan */ }
+    ta.remove();
+    return ok;
+  }
+
+  $("#gen-copy").addEventListener("click", async (e) => {
+    if (!genHtml) return;
+    const b = e.currentTarget;
+    if (await copyText(genHtml)) { b.textContent = "Tersalin ✓"; setTimeout(() => (b.textContent = "Salin kode HTML"), 2200); }
+    else toast("Browser memblokir penyalinan. Pakai Download index.html.");
+  });
+
+  $("#gen-download").addEventListener("click", () => {
+    if (!genHtml) return;
+    const a = h("a", { href: URL.createObjectURL(new Blob([genHtml], { type: "text/html" })), download: "index.html" });
+    document.body.append(a); a.click(); a.remove();
+    toast("Mengunduh index.html…");
+  });
+
+  /* ---------- tampilan ---------- */
+  $$("[data-view]").forEach((b) => b.addEventListener("click", () => {
+    $$("[data-view]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    $("#frame").classList.toggle("mobile", b.dataset.view === "mobile");
+  }));
+  $$("[data-pane]").forEach((b) => b.addEventListener("click", () => {
+    $$("[data-pane]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    document.body.dataset.pane = b.dataset.pane;
+    if (b.dataset.pane === "preview") pushPreview();
+  }));
+  document.body.dataset.pane = "edit";
+  $("#preview").addEventListener("load", pushPreview);
+
+  /* ---------- mulai ---------- */
+  (async () => {
+    try {
+      const d = await idb.get("draft");
+      if (d && d.state) {
+        state = overlay(baseState(), d.state);
+        dirty = !!d.dirty;
+        setStatus(dirty ? "Draf dipulihkan · belum dipublikasikan" : "Versi terpublikasi", dirty ? "warn" : "ok");
+      } else setStatus("Versi terpublikasi", "ok");
+    } catch (e) { setStatus("Versi terpublikasi", "ok"); }
+    renderEditor();
+    pushPreview();
+  })();
+})();
+
+</script>
+</body>
+</html>
